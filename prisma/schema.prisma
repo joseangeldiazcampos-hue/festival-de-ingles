@@ -1,0 +1,56 @@
+// Prisma schema for the Violence Is Never The Answer quiz platform
+// Database: PostgreSQL (Render.com or Neon)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Country ──────────────────────────────────────────────────────────────────
+model Country {
+  id          String     @id @default(cuid())
+  name        String                      // e.g. "Canada"
+  slug        String     @unique          // e.g. "canada"  (used in URL: /canada)
+  flagEmoji   String?                     // e.g. "🇨🇦"
+  monument    String?                     // Short description for the landing page
+  isActive    Boolean    @default(true)   // Admin can disable without deleting
+  order       Int        @default(0)      // Display order in admin panel
+  questions   Question[]
+  attempts    Attempt[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+// ─── Question ─────────────────────────────────────────────────────────────────
+model Question {
+  id            String   @id @default(cuid())
+  countryId     String
+  country       Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  text          String                     // The question text
+  optionA       String
+  optionB       String
+  optionC       String
+  optionD       String
+  correctOption String                     // "A" | "B" | "C" | "D"
+  order         Int      @default(0)       // Question display order
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// ─── Attempt ─────────────────────────────────────────────────────────────────
+// Stores quiz submissions — NO student PII is ever saved.
+model Attempt {
+  id          String   @id @default(cuid())
+  countryId   String
+  country     Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  studentName String?                       // Student's full name
+  correct     Int                          // Number of correct answers
+  incorrect   Int                          // Number of incorrect answers
+  total       Int                          // Total number of questions
+  isPerfect   Boolean                      // true if 100% score
+  createdAt   DateTime @default(now())     // Date and time of submission
+}
