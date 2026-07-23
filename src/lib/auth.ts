@@ -2,14 +2,15 @@
  * NextAuth v5 configuration
  *
  * Uses a simple Credentials provider with a single admin password.
- * No database for auth — the password is stored in env vars.
+ * Enables trustHost: true to work seamlessly on Render.com and reverse proxies.
  */
 
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET || "dev-secret-change-in-production-32chars",
+  trustHost: true,
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "super-secret-key-festival-ingles-2026-xyz",
   providers: [
     Credentials({
       name: "Admin Login",
