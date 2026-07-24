@@ -1,8 +1,8 @@
 "use client";
 
 /**
- * MagicalUnicornRainbow — High quality animated vector SVG + Canvas
- * Renders a magical unicorn painting a brilliant glowing rainbow trail with twinkling star particles.
+ * MagicalUnicornRainbow — High impact vector SVG Rainbow + AI Unicorn Artwork
+ * Renders 6 distinct glowing rainbow color bands painted by a large, crisp AI Unicorn.
  */
 
 import { useEffect, useState } from "react";
@@ -11,16 +11,25 @@ export default function MagicalUnicornRainbow() {
   const [sparkles, setSparkles] = useState<Array<{ id: number; top: number; left: number; size: number; delay: number }>>([]);
 
   useEffect(() => {
-    // Generate 25 magical twinkling stars along the rainbow arc
-    const newSparkles = Array.from({ length: 25 }, (_, i) => ({
+    // Generate 30 magical twinkling stars along the rainbow arc
+    const newSparkles = Array.from({ length: 30 }, (_, i) => ({
       id: i,
-      top: 30 + Math.sin((i / 25) * Math.PI) * 35 + (Math.random() - 0.5) * 15,
-      left: (i / 25) * 85 + 5,
-      size: 12 + Math.random() * 18,
+      top: 25 + Math.sin((i / 30) * Math.PI) * 40 + (Math.random() - 0.5) * 12,
+      left: (i / 30) * 88 + 6,
+      size: 14 + Math.random() * 22,
       delay: Math.random() * 2,
     }));
     setSparkles(newSparkles);
   }, []);
+
+  const rainbowBands = [
+    { color: "#ff0055", width: 44, radiusOffset: 0 },
+    { color: "#ff7700", width: 36, radiusOffset: 6 },
+    { color: "#ffdd00", width: 28, radiusOffset: 12 },
+    { color: "#00e676", width: 20, radiusOffset: 18 },
+    { color: "#00b0ff", width: 12, radiusOffset: 24 },
+    { color: "#d500f9", width: 6, radiusOffset: 30 },
+  ];
 
   return (
     <div
@@ -33,36 +42,27 @@ export default function MagicalUnicornRainbow() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        animation: "unicornFadeIn 1.2s ease-out forwards",
+        animation: "unicornFadeIn 1s ease-out forwards",
       }}
     >
-      {/* Rainbow & Unicorn Container */}
-      <div style={{ position: "relative", width: "100%", height: "100%", maxWidth: "1200px" }}>
+      {/* Container */}
+      <div style={{ position: "relative", width: "100%", height: "100%", maxWidth: "1300px" }}>
         
-        {/* Glowing Rainbow SVG */}
+        {/* Full Viewport Glowing Multi-Layer Rainbow SVG */}
         <svg
           viewBox="0 0 1000 500"
           style={{
             position: "absolute",
-            top: "15%",
-            left: "5%",
-            width: "90%",
-            height: "70%",
-            filter: "drop-shadow(0 0 20px rgba(255, 255, 255, 0.4))",
+            top: "10%",
+            left: "2%",
+            width: "96%",
+            height: "80%",
+            filter: "drop-shadow(0 0 25px rgba(255, 255, 255, 0.6))",
           }}
         >
           <defs>
-            <linearGradient id="rainbowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#ff0055" />
-              <stop offset="20%" stopColor="#ff7700" />
-              <stop offset="40%" stopColor="#ffdd00" />
-              <stop offset="60%" stopColor="#00e676" />
-              <stop offset="80%" stopColor="#00b0ff" />
-              <stop offset="100%" stopColor="#d500f9" />
-            </linearGradient>
-            
-            <filter id="glow">
-              <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+            <filter id="superGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
               <feMerge>
                 <feMergeNode in="coloredBlur"/>
                 <feMergeNode in="SourceGraphic"/>
@@ -70,23 +70,26 @@ export default function MagicalUnicornRainbow() {
             </filter>
           </defs>
 
-          {/* Rainbow Arc */}
-          <path
-            d="M 50 400 Q 500 80 950 400"
-            fill="none"
-            stroke="url(#rainbowGrad)"
-            strokeWidth="34"
-            strokeLinecap="round"
-            filter="url(#glow)"
-            style={{
-              strokeDasharray: 1400,
-              strokeDashoffset: 1400,
-              animation: "drawRainbow 6.0s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.2s",
-            }}
-          />
+          {/* Render 6 Layered Vibrant Rainbow Bands */}
+          {rainbowBands.map((band, idx) => (
+            <path
+              key={idx}
+              d={`M 40 ${400 + band.radiusOffset} Q 500 ${60 + band.radiusOffset} 960 ${400 + band.radiusOffset}`}
+              fill="none"
+              stroke={band.color}
+              strokeWidth={band.width}
+              strokeLinecap="round"
+              filter="url(#superGlow)"
+              style={{
+                strokeDasharray: 1600,
+                strokeDashoffset: 1600,
+                animation: "drawRainbow 5.5s cubic-bezier(0.35, 0, 0.25, 1) forwards 0.2s",
+              }}
+            />
+          ))}
         </svg>
 
-        {/* Floating Twinkling Sparkle Particles */}
+        {/* Floating Twinkling Sparkle Star Particles */}
         {sparkles.map((sp) => (
           <div
             key={sp.id}
@@ -95,31 +98,37 @@ export default function MagicalUnicornRainbow() {
               top: `${sp.top}%`,
               left: `${sp.left}%`,
               fontSize: `${sp.size}px`,
-              animation: `sparklePulse 1.8s ease-in-out infinite alternate`,
+              animation: `sparklePulse 1.6s ease-in-out infinite alternate`,
               animationDelay: `${sp.delay}s`,
-              color: "#fff7c2",
-              textShadow: "0 0 10px #ffd600, 0 0 20px #ffffff",
+              color: "#ffffff",
+              textShadow: "0 0 12px #38bdf8, 0 0 25px #4ade80, 0 0 35px #ffffff",
               pointerEvents: "none",
+              zIndex: 3,
             }}
           >
             ✦
           </div>
         ))}
 
-        {/* AI Generated Magical Unicorn Artwork */}
+        {/* Large, Vivid AI Unicorn Artwork Card */}
         <div
           style={{
             position: "absolute",
-            top: "22%",
+            top: "18%",
             left: "0%",
-            width: "160px",
-            height: "160px",
-            borderRadius: "50%",
+            width: "240px",
+            height: "240px",
+            borderRadius: "32px",
             overflow: "hidden",
-            border: "3px solid #ffd600",
-            boxShadow: "0 0 35px rgba(255, 214, 0, 0.9), 0 0 70px rgba(213, 0, 249, 0.7)",
-            animation: "glideUnicorn 6.0s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.2s",
-            background: "#000",
+            border: "4px solid #38bdf8",
+            boxShadow: `
+              0 0 40px rgba(56, 189, 248, 0.9),
+              0 0 80px rgba(74, 222, 128, 0.8),
+              0 0 120px rgba(213, 0, 249, 0.6)
+            `,
+            animation: "glideUnicorn 5.5s cubic-bezier(0.35, 0, 0.25, 1) forwards 0.2s",
+            background: "#000000",
+            zIndex: 4,
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -130,51 +139,60 @@ export default function MagicalUnicornRainbow() {
               width: "100%",
               height: "100%",
               objectFit: "cover",
+              filter: "contrast(1.1) brightness(1.1)",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              boxShadow: "inset 0 0 30px rgba(56, 189, 248, 0.5)",
+              pointerEvents: "none",
             }}
           />
         </div>
 
       </div>
 
-      {/* CSS Keyframes for smooth animations */}
+      {/* Keyframe Animations */}
       <style>{`
         @keyframes unicornFadeIn {
-          0% { opacity: 0; transform: scale(0.95); }
+          0% { opacity: 0; transform: scale(0.9); }
           100% { opacity: 1; transform: scale(1); }
         }
 
         @keyframes drawRainbow {
-          0% { strokeDashoffset: 1400; }
+          0% { strokeDashoffset: 1600; }
           100% { strokeDashoffset: 0; }
         }
 
         @keyframes glideUnicorn {
           0% {
-            transform: translate(20px, 220px) scale(0.7);
+            transform: translate(10px, 240px) scale(0.7);
             opacity: 0;
           }
-          15% {
+          10% {
             opacity: 1;
           }
-          35% {
-            transform: translate(240px, 80px) scale(0.9);
+          30% {
+            transform: translate(250px, 90px) scale(0.95);
           }
           50% {
-            transform: translate(450px, 20px) scale(1);
+            transform: translate(500px, 20px) scale(1.1);
           }
           75% {
-            transform: translate(680px, 80px) scale(0.9);
+            transform: translate(750px, 90px) scale(0.95);
           }
           100% {
-            transform: translate(840px, 220px) scale(0.8);
+            transform: translate(920px, 240px) scale(0.85);
             opacity: 1;
           }
         }
 
         @keyframes sparklePulse {
-          0% { opacity: 0.2; transform: scale(0.8) rotate(0deg); }
-          50% { opacity: 1; transform: scale(1.3) rotate(45deg); }
-          100% { opacity: 0.3; transform: scale(0.9) rotate(90deg); }
+          0% { opacity: 0.2; transform: scale(0.7) rotate(0deg); }
+          50% { opacity: 1; transform: scale(1.4) rotate(45deg); }
+          100% { opacity: 0.3; transform: scale(0.8) rotate(90deg); }
         }
       `}</style>
     </div>
