@@ -521,7 +521,7 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
         {/* Answer options — Choice Questions */}
         {!isCurrentBonus && (
           <div className="options-grid animate-fadeInUp delay-300">
-            {OPTIONS.map((opt) => (
+            {OPTIONS.filter((opt) => getOptionText(currentQuestion, opt)?.trim()).map((opt) => (
               <button
                 key={opt}
                 className={`option-btn${currentAnswer === opt ? " selected" : ""}`}
