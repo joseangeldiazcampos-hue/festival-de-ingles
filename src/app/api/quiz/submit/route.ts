@@ -1,10 +1,16 @@
 /**
  * POST /api/quiz/submit
  *
- * Receives student name and answers, validates name and grades answers server-side,
+ * Receives student name, grade, and answers, validates and grades answers server-side,
  * saves the attempt in DB, and sends notification email to the admin.
  *
- * Body: { countrySlug: string, studentName: string, answers: Record<questionId, "A"|"B"|"C"|"D"> }
+ * Body: {
+ *   gradeGroupSlug: string,
+ *   studentName: string,
+ *   studentGrade: string,
+ *   answers: Record<questionId, "A"|"B"|"C"|"D">,  // for choice questions
+ *   bonusAnswers: Record<questionId, string>        // for open-ended bonus questions
+ * }
  * Response: { success: true } — students never see individual results.
  */
 
@@ -16,13 +22,15 @@ import { validateStudentName } from "@/lib/nameValidator";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { countrySlug, studentName, answers } = body as {
-      countrySlug: string;
+    const { gradeGroupSlug, studentName, studentGrade, answers, bonusAnswers } = body as {
+      gradeGroupSlug: string;
       studentName: string;
+      studentGrade: string;
       answers: Record<string, string>;
+      bonusAnswers?: Record<string, string>;
     };
 
-    if (!countrySlug || !answers || typeof answers !== "object") {
+    if (!gradeGroupSlug || !answers || typeof answers !== "object" || !studentGrade) {
       return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
     }
 
@@ -34,33 +42,37 @@ export async function POST(req: NextRequest) {
 
     const cleanStudentName = studentName.trim();
 
-    // Fetch country and its questions with correct answers (server-side only)
-    const country = await prisma.country.findUnique({
-      where: { slug: countrySlug },
+    // Fetch grade group and its questions with correct answers (server-side only)
+    const gradeGroup = await prisma.gradeGroup.findUnique({
+      where: { slug: gradeGroupSlug },
       include: {
         questions: {
           orderBy: { order: "asc" },
           select: {
             id: true,
+            type: true,
+            isBonus: true,
             correctOption: true,
+            correctAnswer: true,
           },
         },
       },
     });
 
-    if (!country) {
-      return NextResponse.json({ error: "Country not found" }, { status: 404 });
+    if (!gradeGroup) {
+      return NextResponse.json({ error: "Grade group not found" }, { status: 404 });
     }
 
-    if (!country.isActive) {
+    if (!gradeGroup.isActive) {
       return NextResponse.json({ error: "Quiz is unavailable" }, { status: 403 });
     }
 
-    // Grade the answers
+    // Grade only the choice (non-bonus) questions
     let correct = 0;
     let incorrect = 0;
+    const choiceQuestions = gradeGroup.questions.filter(q => q.type === "choice" && !q.isBonus);
 
-    for (const question of country.questions) {
+    for (const question of choiceQuestions) {
       const studentAnswer = answers[question.id];
       if (studentAnswer === question.correctOption) {
         correct++;
@@ -69,24 +81,29 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const total = country.questions.length;
+    const total = choiceQuestions.length;
     const isPerfect = correct === total;
 
-    // Save attempt with student name
+    // Serialize bonus answers for manual review
+    const bonusAnswersJson = bonusAnswers ? JSON.stringify(bonusAnswers) : null;
+
+    // Save attempt with student grade
     await prisma.attempt.create({
       data: {
-        countryId: country.id,
+        gradeGroupId: gradeGroup.id,
         studentName: cleanStudentName,
+        studentGrade,
         correct,
         incorrect,
         total,
+        bonusAnswers: bonusAnswersJson,
         isPerfect,
       },
     });
 
     // Send email to admin
     sendQuizResultEmail({
-      countryName: country.name,
+      countryName: gradeGroup.name,
       studentName: cleanStudentName,
       correct,
       incorrect,

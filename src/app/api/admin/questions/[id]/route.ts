@@ -25,9 +25,9 @@ export async function PUT(
 
   const { id } = await params;
   const body = await req.json();
-  const { text, optionA, optionB, optionC, optionD, correctOption, order } = body;
+  const { text, optionA, optionB, optionC, optionD, correctOption, order, level, type, isBonus, correctAnswer } = body;
 
-  if (correctOption && !["A", "B", "C", "D"].includes(correctOption)) {
+  if (type === "choice" && correctOption && !["A", "B", "C", "D"].includes(correctOption)) {
     return NextResponse.json({ error: "correctOption must be A, B, C, or D" }, { status: 400 });
   }
 
@@ -42,6 +42,10 @@ export async function PUT(
         ...(optionD !== undefined && { optionD }),
         ...(correctOption !== undefined && { correctOption }),
         ...(order !== undefined && { order }),
+        ...(level !== undefined && { level }),
+        ...(type !== undefined && { type }),
+        ...(isBonus !== undefined && { isBonus }),
+        ...(correctAnswer !== undefined && { correctAnswer }),
       },
     });
     return NextResponse.json(question);

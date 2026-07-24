@@ -1,8 +1,8 @@
 "use client";
 
 /**
- * Admin Questions Page — /admin/questions/[countryId]
- * Full CRUD for quiz questions within a country.
+ * Admin Questions Page — /admin/questions/[gradeGroupId]
+ * Full CRUD for quiz questions within a grade group.
  * Includes AI review before saving a question.
  */
 
@@ -16,14 +16,18 @@ interface Question {
   optionB: string;
   optionC: string;
   optionD: string;
-  correctOption: string;
+  correctOption: string | null;
   order: number;
+  level: string;
+  type: string;
+  isBonus: boolean;
+  correctAnswer: string | null;
 }
 
-interface Country {
+interface GradeGroup {
   id: string;
   name: string;
-  flagEmoji: string;
+  emoji: string;
   slug: string;
 }
 
@@ -42,8 +46,12 @@ interface QuestionForm {
   optionB: string;
   optionC: string;
   optionD: string;
-  correctOption: string;
+  correctOption: string | null;
   order: number;
+  level: string;
+  type: string;
+  isBonus: boolean;
+  correctAnswer: string | null;
 }
 
 const emptyForm: QuestionForm = {
@@ -54,6 +62,10 @@ const emptyForm: QuestionForm = {
   optionD: "",
   correctOption: "A",
   order: 0,
+  level: "A1",
+  type: "choice",
+  isBonus: false,
+  correctAnswer: "",
 };
 
 const OPTIONS = ["A", "B", "C", "D"] as const;
@@ -61,9 +73,9 @@ const OPTIONS = ["A", "B", "C", "D"] as const;
 export default function QuestionsPage() {
   const params = useParams();
   const router = useRouter();
-  const countryId = params.countryId as string;
+  const gradeGroupId = params.gradeGroupId as string;
 
-  const [country, setCountry] = useState<Country | null>(null);
+  const [gradeGroup, setGradeGroup] = useState<GradeGroup | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -76,17 +88,17 @@ export default function QuestionsPage() {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-    const [countriesRes, questionsRes] = await Promise.all([
-      fetch("/api/admin/countries"),
-      fetch(`/api/admin/questions?countryId=${countryId}`),
+    const [gradeGroupsRes, questionsRes] = await Promise.all([
+      fetch("/api/admin/grade-groups"),
+      fetch(`/api/admin/questions?gradeGroupId=${gradeGroupId}`),
     ]);
-    const countriesData = await countriesRes.json();
+    const gradeGroupsData = await gradeGroupsRes.json();
     const questionsData = await questionsRes.json();
-    const found = countriesData.find((c: Country) => c.id === countryId);
-    setCountry(found ?? null);
+    const found = gradeGroupsData.find((c: GradeGroup) => c.id === gradeGroupId);
+    setGradeGroup(found ?? null);
     setQuestions(questionsData);
     setLoading(false);
-  }, [countryId]);
+  }, [gradeGroupId]);
 
   useEffect(() => {
     fetchData();
@@ -103,12 +115,16 @@ export default function QuestionsPage() {
     setEditing(q);
     setForm({
       text: q.text,
-      optionA: q.optionA,
-      optionB: q.optionB,
-      optionC: q.optionC,
-      optionD: q.optionD,
+      optionA: q.optionA || "",
+      optionB: q.optionB || "",
+      optionC: q.optionC || "",
+      optionD: q.optionD || "",
       correctOption: q.correctOption,
       order: q.order,
+      level: q.level || "A1",
+      type: q.type || "choice",
+      isBonus: q.isBonus || false,
+      correctAnswer: q.correctAnswer || "",
     });
     setAiReview(null);
     setShowModal(true);
@@ -154,7 +170,7 @@ export default function QuestionsPage() {
     const method = editing ? "PUT" : "POST";
     const url = editing ? `/api/admin/questions/${editing.id}` : "/api/admin/questions";
 
-    const body = editing ? form : { ...form, countryId };
+    const body = editing ? form : { ...form, gradeGroupId };
 
     const res = await fetch(url, {
       method,
@@ -182,7 +198,7 @@ export default function QuestionsPage() {
     }
   };
 
-  const isFormValid = form.text && form.optionA && form.optionB && form.optionC && form.optionD;
+  const isFormValid = form.text && form.type && form.level && (form.type === "open" || (form.optionA && form.optionB && form.optionC && form.optionD && form.correctOption));
 
   const totalIssues =
     (aiReview?.grammarIssues.length ?? 0) +
@@ -202,7 +218,7 @@ export default function QuestionsPage() {
       >
         <div>
           <button
-            onClick={() => router.push("/admin/countries")}
+            onClick={() => router.push("/admin/grade-groups")}
             style={{
               background: "none",
               border: "none",
@@ -214,18 +230,18 @@ export default function QuestionsPage() {
               display: "block",
             }}
           >
-            ← Back to Countries
+            ← Back to Grade Groups
           </button>
           <h1 style={{ fontSize: "1.75rem", fontWeight: 800, color: "white", margin: 0 }}>
-            {country ? (
+            {gradeGroup ? (
               <>
-                {country.flagEmoji} {country.name} — Questions
+                {gradeGroup.emoji} {gradeGroup.name} — Questions
               </>
             ) : (
               "Loading..."
             )}
           </h1>
-          {country && (
+            {gradeGroup && (
             <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem", alignItems: "center" }}>
               <code
                 style={{
@@ -236,10 +252,10 @@ export default function QuestionsPage() {
                   color: "#42a5f5",
                 }}
               >
-                /{country.slug}
+                /{gradeGroup.slug}
               </code>
               <a
-                href={`/${country.slug}`}
+                href={`/${gradeGroup.slug}`}
                 target="_blank"
                 style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.8rem" }}
               >
@@ -261,7 +277,7 @@ export default function QuestionsPage() {
           <div style={{ textAlign: "center", padding: "3rem" }}>
             <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📝</div>
             <p style={{ color: "rgba(255,255,255,0.4)" }}>
-              No questions yet. Add the first question for this country!
+              No questions yet. Add the first question for this grade group!
             </p>
           </div>
         ) : (
@@ -269,6 +285,7 @@ export default function QuestionsPage() {
             <thead>
               <tr>
                 <th>#</th>
+                <th>Level/Type</th>
                 <th>Question</th>
                 <th>Correct Answer</th>
                 <th>Actions</th>
@@ -278,6 +295,11 @@ export default function QuestionsPage() {
               {questions.map((q, i) => (
                 <tr key={q.id}>
                   <td style={{ color: "rgba(255,255,255,0.4)", width: 40 }}>{i + 1}</td>
+                  <td>
+                    <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#90caf9" }}>{q.level}</div>
+                    <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.5)" }}>{q.type}</div>
+                    {q.isBonus && <div style={{ fontSize: "0.7rem", color: "#ffd600", marginTop: "4px" }}>BONUS</div>}
+                  </td>
                   <td>
                     <div style={{ maxWidth: 480 }}>
                       <div
@@ -290,6 +312,7 @@ export default function QuestionsPage() {
                       >
                         {q.text}
                       </div>
+                      {q.type === "choice" && (
                       <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
                         {OPTIONS.map((opt) => (
                           <span
@@ -313,6 +336,7 @@ export default function QuestionsPage() {
                           </span>
                         ))}
                       </div>
+                      )}
                     </div>
                   </td>
                   <td>
@@ -327,7 +351,7 @@ export default function QuestionsPage() {
                         fontSize: "0.85rem",
                       }}
                     >
-                      ✓ Option {q.correctOption}
+                      {q.type === "choice" ? `✓ Option ${q.correctOption}` : `✓ ${q.correctAnswer}`}
                     </span>
                   </td>
                   <td>
@@ -377,69 +401,121 @@ export default function QuestionsPage() {
                 />
               </div>
 
-              {/* Options grid */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
-                {OPTIONS.map((opt) => (
-                  <div key={opt}>
-                    <label className="admin-label" style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                      <span
-                        style={{
-                          width: 20,
-                          height: 20,
-                          borderRadius: "6px",
-                          background:
-                            form.correctOption === opt ? "#1565c0" : "rgba(255,255,255,0.1)",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: "0.7rem",
-                          fontWeight: 700,
-                          color: "white",
-                        }}
-                      >
-                        {opt}
-                      </span>
-                      Option {opt} {form.correctOption === opt && "✓ (Correct)"}
-                    </label>
+              {/* Type, Level, Bonus */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
+                <div>
+                  <label className="admin-label">Type</label>
+                  <select
+                    className="admin-input"
+                    value={form.type}
+                    onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}
+                  >
+                    <option value="choice">Multiple Choice</option>
+                    <option value="open">Open Answer</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="admin-label">Level</label>
+                  <select
+                    className="admin-input"
+                    value={form.level}
+                    onChange={(e) => setForm((f) => ({ ...f, level: e.target.value }))}
+                  >
+                    <option value="A1">A1</option>
+                    <option value="A2">A2</option>
+                    <option value="B1">B1</option>
+                    <option value="B2">B2</option>
+                  </select>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", paddingTop: "1.5rem" }}>
+                  <label style={{ color: "white", display: "flex", alignItems: "center", gap: "0.5rem" }}>
                     <input
-                      className="admin-input"
-                      value={form[`option${opt}` as keyof QuestionForm] as string}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, [`option${opt}`]: e.target.value }))
-                      }
-                      placeholder={`Option ${opt}...`}
+                      type="checkbox"
+                      checked={form.isBonus}
+                      onChange={(e) => setForm((f) => ({ ...f, isBonus: e.target.checked }))}
                     />
-                  </div>
-                ))}
-              </div>
-
-              {/* Correct answer */}
-              <div>
-                <label className="admin-label">Correct Answer *</label>
-                <div style={{ display: "flex", gap: "0.5rem" }}>
-                  {OPTIONS.map((opt) => (
-                    <button
-                      key={opt}
-                      type="button"
-                      onClick={() => setForm((f) => ({ ...f, correctOption: opt }))}
-                      style={{
-                        padding: "0.5rem 1.25rem",
-                        borderRadius: "10px",
-                        border: "2px solid",
-                        cursor: "pointer",
-                        fontWeight: 700,
-                        fontSize: "0.95rem",
-                        transition: "all 0.2s",
-                        borderColor: form.correctOption === opt ? "#42a5f5" : "rgba(255,255,255,0.12)",
-                        background: form.correctOption === opt ? "rgba(21,101,192,0.35)" : "transparent",
-                        color: form.correctOption === opt ? "#42a5f5" : "rgba(255,255,255,0.5)",
-                      }}
-                    >
-                      {opt}
-                    </button>
-                  ))}
+                    Bonus Question
+                  </label>
                 </div>
               </div>
+
+              {form.type === "choice" ? (
+                <>
+                  {/* Options grid */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+                    {OPTIONS.map((opt) => (
+                      <div key={opt}>
+                        <label className="admin-label" style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                          <span
+                            style={{
+                              width: 20,
+                              height: 20,
+                              borderRadius: "6px",
+                              background:
+                                form.correctOption === opt ? "#1565c0" : "rgba(255,255,255,0.1)",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: "0.7rem",
+                              fontWeight: 700,
+                              color: "white",
+                            }}
+                          >
+                            {opt}
+                          </span>
+                          Option {opt} {form.correctOption === opt && "✓ (Correct)"}
+                        </label>
+                        <input
+                          className="admin-input"
+                          value={form[`option${opt}` as keyof QuestionForm] as string}
+                          onChange={(e) =>
+                            setForm((f) => ({ ...f, [`option${opt}`]: e.target.value }))
+                          }
+                          placeholder={`Option ${opt}...`}
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Correct answer */}
+                  <div>
+                    <label className="admin-label">Correct Answer *</label>
+                    <div style={{ display: "flex", gap: "0.5rem" }}>
+                      {OPTIONS.map((opt) => (
+                        <button
+                          key={opt}
+                          type="button"
+                          onClick={() => setForm((f) => ({ ...f, correctOption: opt }))}
+                          style={{
+                            padding: "0.5rem 1.25rem",
+                            borderRadius: "10px",
+                            border: "2px solid",
+                            cursor: "pointer",
+                            fontWeight: 700,
+                            fontSize: "0.95rem",
+                            transition: "all 0.2s",
+                            borderColor: form.correctOption === opt ? "#42a5f5" : "rgba(255,255,255,0.12)",
+                            background: form.correctOption === opt ? "rgba(21,101,192,0.35)" : "transparent",
+                            color: form.correctOption === opt ? "#42a5f5" : "rgba(255,255,255,0.5)",
+                          }}
+                        >
+                          {opt}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div>
+                  <label className="admin-label">Correct Answer (Open text) *</label>
+                  <input
+                    className="admin-input"
+                    value={form.correctAnswer || ""}
+                    onChange={(e) => setForm((f) => ({ ...f, correctAnswer: e.target.value }))}
+                    placeholder="e.g. Paris"
+                  />
+                </div>
+              )}
 
               {/* AI Review */}
               <div>

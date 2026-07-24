@@ -1,21 +1,23 @@
 "use client";
 
 /**
- * Admin Countries Page — /admin/countries
- * Full CRUD for countries + instant QR Code generator & download for all countries.
- * Each country links to its questions management page for editing/adding/deleting questions.
+ * Admin Grade Groups Page — /admin/grade-groups
+ * Full CRUD for grade groups + instant QR Code generator & download for all grade groups.
+ * Each grade group links to its questions management page for editing/adding/deleting questions.
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { QRCodeCanvas } from "qrcode.react";
 
-interface Country {
+interface GradeGroup {
   id: string;
   name: string;
   slug: string;
-  flagEmoji: string;
-  monument: string;
+  emoji: string;
+  description: string;
+  grades: string;
+  levels: string;
   isActive: boolean;
   order: number;
   _count: { questions: number; attempts: number };
@@ -24,28 +26,30 @@ interface Country {
 interface FormData {
   name: string;
   slug: string;
-  flagEmoji: string;
-  monument: string;
+  emoji: string;
+  description: string;
+  grades: string;
+  levels: string;
   order: number;
 }
 
-const emptyForm: FormData = { name: "", slug: "", flagEmoji: "", monument: "", order: 0 };
+const emptyForm: FormData = { name: "", slug: "", emoji: "", description: "", grades: "", levels: "", order: 0 };
 
 function slugify(text: string): string {
   return text.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
 }
 
-export default function CountriesPage() {
-  const [countries, setCountries] = useState<Country[]>([]);
+export default function GradeGroupsPage() {
+  const [gradeGroups, setGradeGroups] = useState<GradeGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [editing, setEditing] = useState<Country | null>(null);
+  const [editing, setEditing] = useState<GradeGroup | null>(null);
   const [form, setForm] = useState<FormData>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   // QR Code Modal State
-  const [qrCountry, setQrCountry] = useState<Country | null>(null);
+  const [qrGradeGroup, setQrGradeGroup] = useState<GradeGroup | null>(null);
   const [baseUrl, setBaseUrl] = useState<string>("");
   const [copied, setCopied] = useState(false);
   const qrRef = useRef<HTMLDivElement>(null);
@@ -56,17 +60,17 @@ export default function CountriesPage() {
     }
   }, []);
 
-  const fetchCountries = useCallback(async () => {
+  const fetchGradeGroups = useCallback(async () => {
     setLoading(true);
-    const res = await fetch("/api/admin/countries");
+    const res = await fetch("/api/admin/grade-groups");
     const data = await res.json();
-    setCountries(data);
+    setGradeGroups(data);
     setLoading(false);
   }, []);
 
   useEffect(() => {
-    fetchCountries();
-  }, [fetchCountries]);
+    fetchGradeGroups();
+  }, [fetchGradeGroups]);
 
   const openCreate = () => {
     setEditing(null);
@@ -74,16 +78,16 @@ export default function CountriesPage() {
     setShowModal(true);
   };
 
-  const openEdit = (c: Country) => {
+  const openEdit = (c: GradeGroup) => {
     setEditing(c);
-    setForm({ name: c.name, slug: c.slug, flagEmoji: c.flagEmoji, monument: c.monument, order: c.order });
+    setForm({ name: c.name, slug: c.slug, emoji: c.emoji, description: c.description || "", grades: c.grades || "", levels: c.levels || "", order: c.order });
     setShowModal(true);
   };
 
   const handleSave = async () => {
     setSaving(true);
     const method = editing ? "PUT" : "POST";
-    const url = editing ? `/api/admin/countries/${editing.id}` : "/api/admin/countries";
+    const url = editing ? `/api/admin/grade-groups/${editing.id}` : "/api/admin/grade-groups";
 
     const res = await fetch(url, {
       method,
@@ -93,54 +97,54 @@ export default function CountriesPage() {
 
     setSaving(false);
     if (res.ok) {
-      const savedCountry = await res.json();
+      const savedGradeGroup = await res.json();
       setShowModal(false);
-      fetchCountries();
-      // Auto open QR modal for new countries so the admin gets the QR immediately!
-      if (!editing && savedCountry?.slug) {
-        setQrCountry(savedCountry);
+      fetchGradeGroups();
+      // Auto open QR modal for new grade groups so the admin gets the QR immediately!
+      if (!editing && savedGradeGroup?.slug) {
+        setQrGradeGroup(savedGradeGroup);
       }
     } else {
       const data = await res.json();
-      alert(data.error || "Failed to save country");
+      alert(data.error || "Failed to save grade group");
     }
   };
 
   const handleDelete = async (id: string) => {
-    const res = await fetch(`/api/admin/countries/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/admin/grade-groups/${id}`, { method: "DELETE" });
     if (res.ok) {
       setDeleteConfirm(null);
-      fetchCountries();
+      fetchGradeGroups();
     } else {
-      alert("Failed to delete country");
+      alert("Failed to delete grade group");
     }
   };
 
-  const handleToggleActive = async (c: Country) => {
-    await fetch(`/api/admin/countries/${c.id}`, {
+  const handleToggleActive = async (c: GradeGroup) => {
+    await fetch(`/api/admin/grade-groups/${c.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ isActive: !c.isActive }),
     });
-    fetchCountries();
+    fetchGradeGroups();
   };
 
   const downloadQR = () => {
-    if (!qrRef.current || !qrCountry) return;
+    if (!qrRef.current || !qrGradeGroup) return;
     const canvas = qrRef.current.querySelector("canvas");
     if (!canvas) return;
     const url = canvas.toDataURL("image/png");
     const a = document.createElement("a");
     a.href = url;
-    a.download = `QR_${qrCountry.slug}.png`;
+    a.download = `QR_${qrGradeGroup.slug}.png`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
   };
 
   const copyQuizLink = () => {
-    if (!qrCountry) return;
-    const fullUrl = `${baseUrl}/${qrCountry.slug}`;
+    if (!qrGradeGroup) return;
+    const fullUrl = `${baseUrl}/${qrGradeGroup.slug}`;
     navigator.clipboard.writeText(fullUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -159,14 +163,14 @@ export default function CountriesPage() {
       >
         <div>
           <h1 style={{ fontSize: "1.75rem", fontWeight: 800, color: "white", margin: 0 }}>
-            Countries & Quizzes
+            Grade Groups & Quizzes
           </h1>
           <p style={{ color: "rgba(255,255,255,0.4)", marginTop: "0.25rem", fontSize: "0.9rem" }}>
-            Manage quiz countries, edit questions, and get QR codes for students
+            Manage grade groups, edit questions, and get QR codes for students
           </p>
         </div>
         <button className="btn-admin btn-admin-primary" onClick={openCreate}>
-          + Add Country
+          + Add Grade Group
         </button>
       </div>
 
@@ -176,17 +180,18 @@ export default function CountriesPage() {
           <p style={{ color: "rgba(255,255,255,0.4)", textAlign: "center", padding: "2rem" }}>
             Loading...
           </p>
-        ) : countries.length === 0 ? (
+        ) : gradeGroups.length === 0 ? (
           <div style={{ textAlign: "center", padding: "3rem" }}>
-            <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🌍</div>
-            <p style={{ color: "rgba(255,255,255,0.4)" }}>No countries yet. Add one to get started!</p>
+            <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🏫</div>
+            <p style={{ color: "rgba(255,255,255,0.4)" }}>No grade groups yet. Add one to get started!</p>
           </div>
         ) : (
           <div className="table-wrapper">
             <table className="admin-table">
             <thead>
               <tr>
-                <th>Country</th>
+                <th>Grade Group</th>
+                <th>Grades / Levels</th>
                 <th>Slug / URL</th>
                 <th>Questions</th>
                 <th>Submissions</th>
@@ -195,19 +200,27 @@ export default function CountriesPage() {
               </tr>
             </thead>
             <tbody>
-              {countries.map((c) => (
+              {gradeGroups.map((c) => (
                 <tr key={c.id}>
                   <td>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                      <span style={{ fontSize: "1.4rem" }}>{c.flagEmoji}</span>
+                      <span style={{ fontSize: "1.4rem" }}>{c.emoji}</span>
                       <div>
                         <div style={{ fontWeight: 600, color: "white" }}>{c.name}</div>
-                        {c.monument && (
+                        {c.description && (
                           <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.4)" }}>
-                            📍 {c.monument}
+                            {c.description}
                           </div>
                         )}
                       </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.8)" }}>
+                      Grades: {c.grades || "None"}
+                    </div>
+                    <div style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.5)" }}>
+                      Levels: {c.levels || "None"}
                     </div>
                   </td>
                   <td>
@@ -254,7 +267,7 @@ export default function CountriesPage() {
                       {/* QR Code button */}
                       <button
                         className="btn-admin"
-                        onClick={() => setQrCountry(c)}
+                        onClick={() => setQrGradeGroup(c)}
                         style={{
                           background: "rgba(255, 214, 0, 0.15)",
                           color: "#ffd600",
@@ -275,7 +288,7 @@ export default function CountriesPage() {
                         📝 Questions
                       </Link>
 
-                      {/* Edit Country button */}
+                      {/* Edit Grade Group button */}
                       <button
                         className="btn-admin btn-admin-ghost"
                         onClick={() => openEdit(c)}
@@ -303,14 +316,14 @@ export default function CountriesPage() {
       </div>
 
       {/* QR CODE MODAL */}
-      {qrCountry && (
-        <div className="modal-overlay" onClick={() => setQrCountry(null)}>
+      {qrGradeGroup && (
+        <div className="modal-overlay" onClick={() => setQrGradeGroup(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 440, textAlign: "center" }}>
             <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>
-              {qrCountry.flagEmoji}
+              {qrGradeGroup.emoji}
             </div>
             <h2 style={{ margin: "0 0 0.25rem", color: "white", fontSize: "1.3rem", fontWeight: 800 }}>
-              {qrCountry.name} — QR Code
+              {qrGradeGroup.name} — QR Code
             </h2>
             <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.85rem", margin: "0 0 1.25rem" }}>
               Scan with smartphone camera to open quiz directly
@@ -329,7 +342,7 @@ export default function CountriesPage() {
               }}
             >
               <QRCodeCanvas
-                value={`${baseUrl}/${qrCountry.slug}`}
+                value={`${baseUrl}/${qrGradeGroup.slug}`}
                 size={220}
                 level="H"
                 includeMargin={true}
@@ -347,7 +360,7 @@ export default function CountriesPage() {
                 style={{ fontSize: "0.85rem" }}
               />
               <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.3)", marginTop: "0.25rem" }}>
-                Target: <code style={{ color: "#42a5f5" }}>{baseUrl}/{qrCountry.slug}</code>
+                Target: <code style={{ color: "#42a5f5" }}>{baseUrl}/{qrGradeGroup.slug}</code>
               </p>
             </div>
 
@@ -374,7 +387,7 @@ export default function CountriesPage() {
             </div>
 
             <button
-              onClick={() => setQrCountry(null)}
+              onClick={() => setQrGradeGroup(null)}
               style={{
                 background: "none",
                 border: "none",
@@ -395,13 +408,13 @@ export default function CountriesPage() {
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h2 style={{ margin: "0 0 1.5rem", color: "white", fontSize: "1.25rem", fontWeight: 700 }}>
-              {editing ? "Edit Country" : "Add Country"}
+              {editing ? "Edit Grade Group" : "Add Grade Group"}
             </h2>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                 <div>
-                  <label className="admin-label">Country Name *</label>
+                  <label className="admin-label">Grade Group Name *</label>
                   <input
                     className="admin-input"
                     value={form.name}
@@ -413,7 +426,7 @@ export default function CountriesPage() {
                         slug: editing ? f.slug : slugify(name),
                       }));
                     }}
-                    placeholder="e.g. Canada"
+                    placeholder="e.g. Primary School"
                   />
                 </div>
                 <div>
@@ -422,7 +435,7 @@ export default function CountriesPage() {
                     className="admin-input"
                     value={form.slug}
                     onChange={(e) => setForm((f) => ({ ...f, slug: slugify(e.target.value) }))}
-                    placeholder="e.g. canada"
+                    placeholder="e.g. primary-school"
                   />
                   <p style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.3)", marginTop: "0.25rem" }}>
                     URL: {baseUrl}/{form.slug || "..."}
@@ -430,24 +443,45 @@ export default function CountriesPage() {
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "1rem" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                 <div>
-                  <label className="admin-label">Flag Emoji</label>
+                  <label className="admin-label">Emoji</label>
                   <input
                     className="admin-input"
-                    value={form.flagEmoji}
-                    onChange={(e) => setForm((f) => ({ ...f, flagEmoji: e.target.value }))}
-                    placeholder="🇨🇦"
+                    value={form.emoji}
+                    onChange={(e) => setForm((f) => ({ ...f, emoji: e.target.value }))}
+                    placeholder="🏫"
                     style={{ fontSize: "1.5rem" }}
                   />
                 </div>
                 <div>
-                  <label className="admin-label">Monument / Landmark</label>
+                  <label className="admin-label">Description</label>
                   <input
                     className="admin-input"
-                    value={form.monument}
-                    onChange={(e) => setForm((f) => ({ ...f, monument: e.target.value }))}
-                    placeholder="e.g. CN Tower, Toronto"
+                    value={form.description}
+                    onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                    placeholder="e.g. Middle School"
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                <div>
+                  <label className="admin-label">Grades</label>
+                  <input
+                    className="admin-input"
+                    value={form.grades}
+                    onChange={(e) => setForm((f) => ({ ...f, grades: e.target.value }))}
+                    placeholder="e.g. 7,8"
+                  />
+                </div>
+                <div>
+                  <label className="admin-label">Levels (CEFR)</label>
+                  <input
+                    className="admin-input"
+                    value={form.levels}
+                    onChange={(e) => setForm((f) => ({ ...f, levels: e.target.value }))}
+                    placeholder="e.g. A1,A2"
                   />
                 </div>
               </div>
@@ -473,7 +507,7 @@ export default function CountriesPage() {
                 onClick={handleSave}
                 disabled={saving || !form.name || !form.slug}
               >
-                {saving ? "Saving..." : editing ? "Save Changes" : "Add Country & Generate QR"}
+                {saving ? "Saving..." : editing ? "Save Changes" : "Add Grade Group & Generate QR"}
               </button>
             </div>
           </div>
@@ -484,12 +518,12 @@ export default function CountriesPage() {
       {deleteConfirm && (
         <div className="modal-overlay" onClick={() => setDeleteConfirm(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 400 }}>
-            <div style={{ fontSize: "2rem", marginBottom: "1rem", textAlign: "center" }}>⚠️</div>
+            <div style={{ fontSize: "2rem", marginBottom: "1rem", textAlign: "center" }}>âš ï¸</div>
             <h2 style={{ color: "white", textAlign: "center", margin: "0 0 0.5rem", fontSize: "1.1rem" }}>
-              Delete Country?
+              Delete Grade Group?
             </h2>
             <p style={{ color: "rgba(255,255,255,0.5)", textAlign: "center", fontSize: "0.875rem" }}>
-              This will also delete all questions and submissions for this country. This action cannot be
+              This will also delete all questions and submissions for this grade group. This action cannot be
               undone.
             </p>
             <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center", marginTop: "1.5rem" }}>

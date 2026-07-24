@@ -1,7 +1,7 @@
 /**
- * Admin API – Single Country
- * PUT    /api/admin/countries/[id]   → update a country
- * DELETE /api/admin/countries/[id]   → delete a country
+ * Admin API — Single Grade Group
+ * PUT    /api/admin/grade-groups/[id]   — update a grade group
+ * DELETE /api/admin/grade-groups/[id]   — delete a grade group
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -25,25 +25,27 @@ export async function PUT(
 
   const { id } = await params;
   const body = await req.json();
-  const { name, slug, flagEmoji, monument, isActive, order } = body;
+  const { name, slug, emoji, description, grades, levels, isActive, order } = body;
 
   try {
-    const country = await prisma.country.update({
+    const gradeGroup = await prisma.gradeGroup.update({
       where: { id },
       data: {
         ...(name !== undefined && { name }),
         ...(slug !== undefined && { slug }),
-        ...(flagEmoji !== undefined && { flagEmoji }),
-        ...(monument !== undefined && { monument }),
+        ...(emoji !== undefined && { emoji }),
+        ...(description !== undefined && { description }),
+        ...(grades !== undefined && { grades }),
+        ...(levels !== undefined && { levels }),
         ...(isActive !== undefined && { isActive }),
         ...(order !== undefined && { order }),
       },
     });
-    return NextResponse.json(country);
+    return NextResponse.json(gradeGroup);
   } catch (error: unknown) {
     const e = error as { code?: string };
     if (e.code === "P2025") {
-      return NextResponse.json({ error: "Country not found" }, { status: 404 });
+      return NextResponse.json({ error: "Grade group not found" }, { status: 404 });
     }
     if (e.code === "P2002") {
       return NextResponse.json({ error: "Slug already in use" }, { status: 409 });
@@ -62,12 +64,12 @@ export async function DELETE(
   const { id } = await params;
 
   try {
-    await prisma.country.delete({ where: { id } });
+    await prisma.gradeGroup.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
     const e = error as { code?: string };
     if (e.code === "P2025") {
-      return NextResponse.json({ error: "Country not found" }, { status: 404 });
+      return NextResponse.json({ error: "Grade group not found" }, { status: 404 });
     }
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }

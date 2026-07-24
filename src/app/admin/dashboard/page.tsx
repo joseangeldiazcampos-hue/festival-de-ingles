@@ -7,17 +7,17 @@ import { prisma } from "@/lib/db";
 import Link from "next/link";
 
 export default async function DashboardPage() {
-  const [countriesCount, questionsCount, attemptsCount, recentAttempts, countries] =
+  const [gradeGroupsCount, questionsCount, attemptsCount, recentAttempts, gradeGroups] =
     await Promise.all([
-      prisma.country.count(),
+      prisma.gradeGroup.count(),
       prisma.question.count(),
       prisma.attempt.count(),
       prisma.attempt.findMany({
         take: 10,
         orderBy: { createdAt: "desc" },
-        include: { country: { select: { name: true, flagEmoji: true } } },
+        include: { gradeGroup: { select: { name: true, emoji: true } } },
       }),
-      prisma.country.findMany({
+      prisma.gradeGroup.findMany({
         orderBy: { order: "asc" },
         include: { _count: { select: { questions: true, attempts: true } } },
       }),
@@ -26,8 +26,8 @@ export default async function DashboardPage() {
   const perfectScores = await prisma.attempt.count({ where: { isPerfect: true } });
 
   const stats = [
-    { label: "Countries", value: countriesCount, icon: "🌍", color: "#42a5f5", href: "/admin/countries" },
-    { label: "Questions", value: questionsCount, icon: "📝", color: "#ffd600", href: "/admin/countries" },
+    { label: "Grade Groups", value: gradeGroupsCount, icon: "🏫", color: "#42a5f5", href: "/admin/grade-groups" },
+    { label: "Questions", value: questionsCount, icon: "📝", color: "#ffd600", href: "/admin/grade-groups" },
     { label: "Submissions", value: attemptsCount, icon: "📊", color: "#81c784", href: "/admin/attempts" },
     { label: "Winners (100%)", value: perfectScores, icon: "🏆", color: "#ff8f00", href: "/admin/winners" },
   ];
@@ -71,7 +71,7 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid-2col-responsive" style={{ display: "grid", gap: "1.5rem" }}>
-        {/* Countries overview */}
+        {/* Grade Groups overview */}
         <div className="admin-card">
           <div
             style={{
@@ -82,17 +82,17 @@ export default async function DashboardPage() {
             }}
           >
             <h2 style={{ margin: 0, fontSize: "1rem", fontWeight: 700, color: "white" }}>
-              Countries
+              Grade Groups
             </h2>
             <Link
-              href="/admin/countries"
+              href="/admin/grade-groups"
               style={{ fontSize: "0.8rem", color: "#42a5f5", textDecoration: "none" }}
             >
               Manage →
             </Link>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-            {countries.map((c) => (
+            {gradeGroups.map((c) => (
               <div
                 key={c.id}
                 style={{
@@ -104,7 +104,7 @@ export default async function DashboardPage() {
                   background: "rgba(255,255,255,0.03)",
                 }}
               >
-                <span style={{ fontSize: "1.3rem" }}>{c.flagEmoji}</span>
+                <span style={{ fontSize: "1.3rem" }}>{c.emoji}</span>
                 <span style={{ flex: 1, fontSize: "0.9rem", color: "rgba(255,255,255,0.85)" }}>
                   {c.name}
                 </span>
@@ -116,10 +116,10 @@ export default async function DashboardPage() {
                 </span>
               </div>
             ))}
-            {countries.length === 0 && (
+            {gradeGroups.length === 0 && (
               <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "0.875rem", textAlign: "center" }}>
-                No countries yet.{" "}
-                <Link href="/admin/countries" style={{ color: "#42a5f5" }}>
+                No grade groups yet.{" "}
+                <Link href="/admin/grade-groups" style={{ color: "#42a5f5" }}>
                   Add one →
                 </Link>
               </p>
@@ -147,13 +147,13 @@ export default async function DashboardPage() {
                   background: "rgba(255,255,255,0.03)",
                 }}
               >
-                <span style={{ fontSize: "1.2rem" }}>{attempt.country.flagEmoji}</span>
+                <span style={{ fontSize: "1.2rem" }}>{attempt.gradeGroup?.emoji}</span>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: "0.85rem", color: "#90caf9", fontWeight: 600 }}>
-                    👤 {attempt.studentName || "Anonymous"}
+                    👤 {attempt.studentName || "Anonymous"} {attempt.studentGrade ? `(${attempt.studentGrade})` : ""}
                   </div>
                   <div style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.6)" }}>
-                    {attempt.country.name} • {new Date(attempt.createdAt).toLocaleString("en-US", {
+                    {attempt.gradeGroup?.name} • {new Date(attempt.createdAt).toLocaleString("en-US", {
                       month: "short",
                       day: "numeric",
                       hour: "2-digit",

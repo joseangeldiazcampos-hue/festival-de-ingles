@@ -1,6 +1,6 @@
 /**
  * Admin Winners Page — /admin/winners
- * Shows all students who scored 100% (Perfect Score) on any country quiz.
+ * Shows all students who scored 100% (Perfect Score) on any quiz.
  */
 
 import { prisma } from "@/lib/db";
@@ -9,7 +9,7 @@ export default async function WinnersPage() {
   const winners = await prisma.attempt.findMany({
     where: { isPerfect: true },
     orderBy: { createdAt: "desc" },
-    include: { country: { select: { name: true, flagEmoji: true, slug: true } } },
+    include: { gradeGroup: { select: { name: true, emoji: true, slug: true } } },
   });
 
   return (
@@ -35,7 +35,7 @@ export default async function WinnersPage() {
           </span>
         </div>
         <p style={{ color: "rgba(255,255,255,0.4)", marginTop: "0.35rem", fontSize: "0.9rem" }}>
-          Students who answered all questions correctly in Canada, Japan, Italy, USA, or Mexico
+          Students who answered all questions correctly
         </p>
       </div>
 
@@ -46,7 +46,7 @@ export default async function WinnersPage() {
             <div style={{ fontSize: "3.5rem", marginBottom: "1rem" }}>⭐</div>
             <h3 style={{ color: "white", fontWeight: 700, margin: "0 0 0.5rem" }}>No Winners Yet</h3>
             <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.9rem", margin: 0 }}>
-              Students who achieve 100% accuracy on any country quiz will automatically appear here!
+              Students who achieve 100% accuracy on any quiz will automatically appear here!
             </p>
           </div>
         ) : (
@@ -55,7 +55,8 @@ export default async function WinnersPage() {
               <thead>
                 <tr>
                   <th>Student Name</th>
-                  <th>Country Quiz</th>
+                  <th>Grade</th>
+                  <th>Quiz Level</th>
                   <th>Date</th>
                   <th>Time</th>
                   <th>Score</th>
@@ -76,9 +77,14 @@ export default async function WinnersPage() {
                         </div>
                       </td>
                       <td>
+                        <span style={{ fontWeight: 600, color: "rgba(255,255,255,0.8)" }}>
+                          {w.studentGrade || "-"}
+                        </span>
+                      </td>
+                      <td>
                         <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                          <span style={{ fontSize: "1.3rem" }}>{w.country.flagEmoji}</span>
-                          <span style={{ fontWeight: 700, color: "white" }}>{w.country.name}</span>
+                          <span style={{ fontSize: "1.3rem" }}>{w.gradeGroup?.emoji}</span>
+                          <span style={{ fontWeight: 700, color: "white" }}>{w.gradeGroup?.name}</span>
                         </div>
                       </td>
                       <td style={{ color: "rgba(255,255,255,0.7)", fontWeight: 500 }}>

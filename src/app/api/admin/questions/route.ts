@@ -1,6 +1,6 @@
 /**
  * Admin API – Questions
- * GET    /api/admin/questions?countryId=xxx  → list questions for a country
+ * GET    /api/admin/questions?gradeGroupId=xxx  → list questions for a grade group
  * POST   /api/admin/questions                → create a question
  */
 
@@ -21,14 +21,14 @@ export async function GET(req: NextRequest) {
   if (authError) return authError;
 
   const { searchParams } = new URL(req.url);
-  const countryId = searchParams.get("countryId");
+  const gradeGroupId = searchParams.get("gradeGroupId");
 
-  if (!countryId) {
-    return NextResponse.json({ error: "countryId query param is required" }, { status: 400 });
+  if (!gradeGroupId) {
+    return NextResponse.json({ error: "gradeGroupId query param is required" }, { status: 400 });
   }
 
   const questions = await prisma.question.findMany({
-    where: { countryId },
+    where: { gradeGroupId },
     orderBy: { order: "asc" },
   });
 
@@ -40,19 +40,23 @@ export async function POST(req: NextRequest) {
   if (authError) return authError;
 
   const body = await req.json();
-  const { countryId, text, optionA, optionB, optionC, optionD, correctOption, order } = body;
+  const { gradeGroupId, text, optionA, optionB, optionC, optionD, correctOption, order, level, type, isBonus, correctAnswer } = body;
 
-  if (!countryId || !text || !optionA || !optionB || !optionC || !optionD || !correctOption) {
-    return NextResponse.json({ error: "All fields are required" }, { status: 400 });
+  if (!gradeGroupId || !text || !type || !level) {
+    return NextResponse.json({ error: "Required fields missing" }, { status: 400 });
   }
 
-  if (!["A", "B", "C", "D"].includes(correctOption)) {
+  if (type === "choice" && correctOption && !["A", "B", "C", "D"].includes(correctOption)) {
     return NextResponse.json({ error: "correctOption must be A, B, C, or D" }, { status: 400 });
   }
 
   try {
     const question = await prisma.question.create({
-      data: { countryId, text, optionA, optionB, optionC, optionD, correctOption, order: order ?? 0 },
+      data: { 
+        gradeGroupId, text, optionA, optionB, optionC, optionD, correctOption, 
+        order: order ?? 0,
+        level, type, isBonus: isBonus ?? false, correctAnswer
+      },
     });
     return NextResponse.json(question, { status: 201 });
   } catch {

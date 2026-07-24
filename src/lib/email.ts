@@ -95,7 +95,7 @@ export async function sendQuizResultEmail(params: QuizResultEmailParams): Promis
       <span class="value">${nameDisplay}</span>
     </div>
     <div class="row">
-      <span class="label">Country</span>
+      <span class="label">Quiz Level</span>
       <span class="value">${countryName}</span>
     </div>
     <div class="row">
@@ -129,11 +129,11 @@ export async function sendQuizResultEmail(params: QuizResultEmailParams): Promis
   await transporter.sendMail({
     from: `"English Festival Quiz" <${process.env.GMAIL_USER}>`,
     to: process.env.ADMIN_EMAIL ?? process.env.GMAIL_USER,
-    subject: `[Quiz Result] ${nameDisplay} (${countryName}) – ${date} ${time}`,
+    subject: `[Quiz Result] ${nameDisplay} (${countryName}) \u2013 ${date} ${time}`,
     html: htmlBody,
     text: `
 Student Name: ${nameDisplay}
-Country: ${countryName}
+Quiz Level: ${countryName}
 Date: ${date}
 Time: ${time}
 Correct Answers: ${correct}/${total}

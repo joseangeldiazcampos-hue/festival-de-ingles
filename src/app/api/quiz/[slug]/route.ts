@@ -1,7 +1,7 @@
 /**
  * GET /api/quiz/[slug]
- * Returns the questions for a given country slug.
- * IMPORTANT: The correctOption field is NEVER included in the response.
+ * Returns the questions for a given grade group slug.
+ * IMPORTANT: The correctOption and correctAnswer fields are NEVER included in the response.
  * Answer validation happens only server-side in /api/quiz/submit.
  */
 
@@ -15,7 +15,7 @@ export async function GET(
   const { slug } = await params;
 
   try {
-    const country = await prisma.country.findUnique({
+    const gradeGroup = await prisma.gradeGroup.findUnique({
       where: { slug },
       include: {
         questions: {
@@ -23,32 +23,36 @@ export async function GET(
           select: {
             id: true,
             text: true,
+            type: true,
+            level: true,
+            isBonus: true,
             optionA: true,
             optionB: true,
             optionC: true,
             optionD: true,
             order: true,
-            // ⚠️ correctOption is intentionally excluded
+            // ⚠️ correctOption and correctAnswer are intentionally excluded
           },
         },
       },
     });
 
-    if (!country) {
-      return NextResponse.json({ error: "Country not found" }, { status: 404 });
+    if (!gradeGroup) {
+      return NextResponse.json({ error: "Grade group not found" }, { status: 404 });
     }
 
-    if (!country.isActive) {
+    if (!gradeGroup.isActive) {
       return NextResponse.json({ error: "Quiz is currently unavailable" }, { status: 403 });
     }
 
     return NextResponse.json({
-      id: country.id,
-      name: country.name,
-      slug: country.slug,
-      flagEmoji: country.flagEmoji,
-      monument: country.monument,
-      questions: country.questions,
+      id: gradeGroup.id,
+      name: gradeGroup.name,
+      slug: gradeGroup.slug,
+      emoji: gradeGroup.emoji,
+      levels: gradeGroup.levels,
+      description: gradeGroup.description,
+      questions: gradeGroup.questions,
     });
   } catch (error) {
     console.error("Quiz fetch error:", error);

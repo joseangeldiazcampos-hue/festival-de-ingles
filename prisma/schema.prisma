@@ -10,15 +10,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ─── Country ──────────────────────────────────────────────────────────────────
-model Country {
+// ─── GradeGroup ──────────────────────────────────────────────────────────────
+// Replaces Country — groups students by school grade with CEFR-level questions
+model GradeGroup {
   id          String     @id @default(cuid())
-  name        String                      // e.g. "Canada"
-  slug        String     @unique          // e.g. "canada"  (used in URL: /canada)
-  flagEmoji   String?                     // e.g. "🇨🇦"
-  monument    String?                     // Short description for the landing page
+  name        String                      // e.g. "7mo y 8vo", "9no - 11mo", "Desafío"
+  slug        String     @unique          // e.g. "7-8", "9-10-11", "challenge"
+  grades      String                      // Comma-separated grades: "7,8" or "9,10,11" or "all"
+  levels      String                      // Comma-separated CEFR levels: "A1,A2" or "A2,B1" or "B2"
+  emoji       String?                     // e.g. "📚", "🎯", "🏆"
+  description String?                     // Short description for the landing page
   isActive    Boolean    @default(true)   // Admin can disable without deleting
-  order       Int        @default(0)      // Display order in admin panel
+  order       Int        @default(0)      // Display order
   questions   Question[]
   attempts    Attempt[]
   createdAt   DateTime   @default(now())
@@ -27,30 +30,36 @@ model Country {
 
 // ─── Question ─────────────────────────────────────────────────────────────────
 model Question {
-  id            String   @id @default(cuid())
-  countryId     String
-  country       Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  id            String     @id @default(cuid())
+  gradeGroupId  String
+  gradeGroup    GradeGroup @relation(fields: [gradeGroupId], references: [id], onDelete: Cascade)
+  level         String                     // CEFR level: "A1" | "A2" | "B1" | "B2"
+  type          String     @default("choice") // "choice" = multiple choice, "open" = write answer
   text          String                     // The question text
-  optionA       String
-  optionB       String
-  optionC       String
-  optionD       String
-  correctOption String                     // "A" | "B" | "C" | "D"
-  order         Int      @default(0)       // Question display order
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  optionA       String?                    // Nullable for open-ended questions
+  optionB       String?
+  optionC       String?
+  optionD       String?
+  correctOption String?                    // "A" | "B" | "C" | "D" for choice questions
+  correctAnswer String?                    // Expected text answer for open-ended questions
+  isBonus       Boolean    @default(false) // true = bonus question at the end
+  order         Int        @default(0)     // Question display order
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
 }
 
 // ─── Attempt ─────────────────────────────────────────────────────────────────
-// Stores quiz submissions — NO student PII is ever saved.
+// Stores quiz submissions
 model Attempt {
-  id          String   @id @default(cuid())
-  countryId   String
-  country     Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
-  studentName String?                       // Student's full name
-  correct     Int                          // Number of correct answers
-  incorrect   Int                          // Number of incorrect answers
-  total       Int                          // Total number of questions
-  isPerfect   Boolean                      // true if 100% score
-  createdAt   DateTime @default(now())     // Date and time of submission
+  id           String     @id @default(cuid())
+  gradeGroupId String
+  gradeGroup   GradeGroup @relation(fields: [gradeGroupId], references: [id], onDelete: Cascade)
+  studentName  String?                       // Student's full name
+  studentGrade String                        // Exact grade: "7", "8", "9", "10", "11"
+  correct      Int                           // Number of correct answers (choice questions)
+  incorrect    Int                           // Number of incorrect answers (choice questions)
+  total        Int                           // Total choice questions
+  bonusAnswers String?                       // JSON string of bonus answers for manual review
+  isPerfect    Boolean                       // true if 100% on choice questions
+  createdAt    DateTime   @default(now())    // Date and time of submission
 }

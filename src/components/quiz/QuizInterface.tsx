@@ -2,25 +2,26 @@
 
 /**
  * QuizInterface — The full interactive quiz component
- * - Uses DIFFERENT, DISTINCT country background images during the quiz phase from the landing page.
- * - Displays rich country-themed visuals (monument badge, floating country emojis, watermark flag).
- * - Reads student name from URL search params or localStorage.
- * - Student selects one answer per question.
- * - On submit, sends studentName + answers to /api/quiz/submit.
- * - Shows success message only — never shows score to student.
+ * - Supports grade-group-based quizzes with CEFR levels
+ * - Handles both multiple-choice and open-ended (bonus) questions
+ * - Reads student name and grade from URL search params or localStorage
+ * - On submit, sends studentName, studentGrade, answers, and bonusAnswers to /api/quiz/submit
+ * - Shows success message only — never shows score to student
  */
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
 
 interface Question {
   id: string;
   text: string;
-  optionA: string;
-  optionB: string;
-  optionC: string;
-  optionD: string;
+  type: string;     // "choice" | "open"
+  level: string;    // "A1" | "A2" | "B1" | "B2"
+  isBonus: boolean;
+  optionA: string | null;
+  optionB: string | null;
+  optionC: string | null;
+  optionD: string | null;
   order: number;
 }
 
@@ -28,8 +29,9 @@ interface QuizData {
   id: string;
   name: string;
   slug: string;
-  flagEmoji: string;
-  monument?: string;
+  emoji?: string;
+  levels: string;
+  description?: string;
   questions: Question[];
 }
 
@@ -37,78 +39,83 @@ type QuizState = "loading" | "error" | "quiz" | "submitting" | "success";
 
 const OPTIONS = ["A", "B", "C", "D"] as const;
 
-// Distinct quiz background images (different from landing page hero images)
-const QUIZ_COUNTRY_IMAGES: Record<string, string> = {
-  canada: "/quiz_bg_canada.png",      // Lake Louise, Banff Rocky Mountains
-  japan: "/quiz_bg_japan.png",        // Kyoto Arashiyama Bamboo Lantern Path
-  italy: "/bg_italy.png",
-  "united-states": "/bg_usa.png",
-  mexico: "/bg_mexico.png",
+const LEVEL_COLORS: Record<string, string> = {
+  A1: "#4caf50",
+  A2: "#8bc34a",
+  B1: "#ff9800",
+  B2: "#f44336",
 };
 
-const QUIZ_COUNTRY_ACCENTS: Record<string, string> = {
-  canada:          "rgba(239, 68, 68, 0.50)",
-  japan:           "rgba(236, 72, 153, 0.50)",
-  italy:           "rgba(34, 197, 94, 0.50)",
-  "united-states": "rgba(59, 130, 246, 0.50)",
-  mexico:          "rgba(245, 158, 11, 0.50)",
-};
-
-const COUNTRY_MONUMENTS: Record<string, string> = {
-  canada: "Lake Louise & Rocky Mountains",
-  japan: "Arashiyama Bamboo Forest",
-  italy: "Colosseum, Rome",
-  "united-states": "Statue of Liberty",
-  mexico: "Chichen Itza",
-};
-
-const COUNTRY_ICONS: Record<string, string[]> = {
-  canada:          ["🍁", "🏒", "🏔️", "🌲", "🕊️"],
-  japan:           ["🌸", "🎋", "🏮", "🏯", "🕊️"],
-  italy:           ["🍕", "🏛️", "🎨", "🎭", "🕊️"],
-  "united-states": ["🦅", "🗽", "⭐", "🎓", "🕊️"],
-  mexico:          ["🌮", "🌵", "☀️", "🎉", "🕊️"],
+const LEVEL_BG: Record<string, string> = {
+  A1: "rgba(76, 175, 80, 0.15)",
+  A2: "rgba(139, 195, 58, 0.15)",
+  B1: "rgba(255, 152, 0, 0.15)",
+  B2: "rgba(244, 67, 54, 0.15)",
 };
 
 function getOptionText(q: Question, opt: string): string {
-  if (opt === "A") return q.optionA;
-  if (opt === "B") return q.optionB;
-  if (opt === "C") return q.optionC;
-  return q.optionD;
+  if (opt === "A") return q.optionA ?? "";
+  if (opt === "B") return q.optionB ?? "";
+  if (opt === "C") return q.optionC ?? "";
+  return q.optionD ?? "";
 }
 
-export default function QuizInterface({ countrySlug }: { countrySlug: string }) {
+export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const [state, setState] = useState<QuizState>("loading");
   const [quizData, setQuizData] = useState<QuizData | null>(null);
   const [studentName, setStudentName] = useState<string>("");
+  const [studentGrade, setStudentGrade] = useState<string>("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [bonusAnswers, setBonusAnswers] = useState<Record<string, string>>({});
   const [error, setError] = useState<string>("");
 
-  const bgImage = QUIZ_COUNTRY_IMAGES[countrySlug] ?? "/bg_default.png";
-  const accentColor = QUIZ_COUNTRY_ACCENTS[countrySlug] ?? "rgba(21, 101, 192, 0.50)";
-  const monument = COUNTRY_MONUMENTS[countrySlug] || quizData?.monument;
-  const floatingIcons = COUNTRY_ICONS[countrySlug] ?? ["📚", "🕊️", "🌍", "✏️", "🤝"];
+  // Separate questions by type
+  const choiceQuestions = quizData?.questions.filter(q => q.type === "choice" && !q.isBonus) ?? [];
+  const bonusQuestions = quizData?.questions.filter(q => q.isBonus || q.type === "open") ?? [];
+  const allDisplayQuestions = [...choiceQuestions, ...bonusQuestions];
 
-  // Retrieve student name on mount
+  const currentQuestion = allDisplayQuestions[currentIndex];
+  const totalQuestions = allDisplayQuestions.length;
+  const progress = totalQuestions > 0 ? ((currentIndex + 1) / totalQuestions) * 100 : 0;
+
+  const choiceAnsweredAll = choiceQuestions.every((q) => answers[q.id]);
+  const bonusAnsweredAll = bonusQuestions.every((q) => bonusAnswers[q.id]?.trim());
+  const answeredAll = choiceAnsweredAll && bonusAnsweredAll;
+
+  const isCurrentChoice = currentQuestion && currentQuestion.type === "choice" && !currentQuestion.isBonus;
+  const currentAnswer = currentQuestion
+    ? isCurrentChoice
+      ? answers[currentQuestion.id]
+      : bonusAnswers[currentQuestion.id]
+    : undefined;
+
+  // Retrieve student name and grade on mount
   useEffect(() => {
     let name = searchParams.get("name") || "";
+    let grade = searchParams.get("grade") || "";
+
     if (!name && typeof window !== "undefined") {
       name = localStorage.getItem("quiz_student_name") || "";
     }
-    if (!name) {
-      router.push(`/${countrySlug}`);
+    if (!grade && typeof window !== "undefined") {
+      grade = localStorage.getItem("quiz_student_grade") || "";
+    }
+
+    if (!name || !grade) {
+      router.push(`/${gradeGroupSlug}`);
       return;
     }
     setStudentName(name);
-  }, [countrySlug, searchParams, router]);
+    setStudentGrade(grade);
+  }, [gradeGroupSlug, searchParams, router]);
 
   // Fetch quiz data on mount
   useEffect(() => {
-    fetch(`/api/quiz/${countrySlug}`)
+    fetch(`/api/quiz/${gradeGroupSlug}`)
       .then((res) => {
         if (!res.ok) throw new Error("Quiz not available");
         return res.json();
@@ -121,18 +128,22 @@ export default function QuizInterface({ countrySlug }: { countrySlug: string }) 
         setError(err.message);
         setState("error");
       });
-  }, [countrySlug]);
-
-  const currentQuestion = quizData?.questions[currentIndex];
-  const totalQuestions = quizData?.questions.length ?? 0;
-  const progress = totalQuestions > 0 ? ((currentIndex + 1) / totalQuestions) * 100 : 0;
-  const answeredAll = quizData?.questions.every((q) => answers[q.id]) ?? false;
-  const currentAnswer = currentQuestion ? answers[currentQuestion.id] : undefined;
+  }, [gradeGroupSlug]);
 
   const handleSelect = useCallback(
     (option: string) => {
       if (!currentQuestion) return;
-      setAnswers((prev) => ({ ...prev, [currentQuestion.id]: option }));
+      if (isCurrentChoice) {
+        setAnswers((prev) => ({ ...prev, [currentQuestion.id]: option }));
+      }
+    },
+    [currentQuestion, isCurrentChoice]
+  );
+
+  const handleBonusInput = useCallback(
+    (value: string) => {
+      if (!currentQuestion) return;
+      setBonusAnswers((prev) => ({ ...prev, [currentQuestion.id]: value }));
     },
     [currentQuestion]
   );
@@ -153,7 +164,13 @@ export default function QuizInterface({ countrySlug }: { countrySlug: string }) 
       const res = await fetch("/api/quiz/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ countrySlug, studentName, answers }),
+        body: JSON.stringify({
+          gradeGroupSlug,
+          studentName,
+          studentGrade,
+          answers,
+          bonusAnswers: Object.keys(bonusAnswers).length > 0 ? bonusAnswers : undefined,
+        }),
       });
 
       const resData = await res.json();
@@ -170,23 +187,13 @@ export default function QuizInterface({ countrySlug }: { countrySlug: string }) 
     }
   };
 
+  // Floating decorative icons
+  const floatingIcons = ["📚", "🕊️", "🌍", "✏️", "🤝"];
+
   // Shared Background Layout Wrapper
   const renderBackground = () => (
     <>
-      <div style={{ position: "fixed", inset: 0, zIndex: 0 }}>
-        <Image
-          src={bgImage}
-          alt={`${countrySlug} quiz landscape`}
-          fill
-          priority
-          style={{
-            objectFit: "cover",
-            objectPosition: "center",
-            filter: "brightness(0.75) contrast(1.1)",
-          }}
-        />
-      </div>
-      {/* Dark overlay so question text stands out crisp */}
+      <div className="bg-animated" style={{ position: "fixed", inset: 0, zIndex: 0 }} />
       <div
         style={{
           position: "fixed",
@@ -201,16 +208,15 @@ export default function QuizInterface({ countrySlug }: { countrySlug: string }) 
           )`,
         }}
       />
-      {/* Radial accent glow matching the country colors */}
       <div
         style={{
           position: "fixed",
           inset: 0,
           zIndex: 1,
-          background: `radial-gradient(ellipse at 50% 0%, ${accentColor} 0%, transparent 65%)`,
+          background: "radial-gradient(ellipse at 50% 0%, rgba(21, 101, 192, 0.35) 0%, transparent 65%)",
         }}
       />
-      {/* Floating country emojis */}
+      {/* Floating emojis */}
       {floatingIcons.map((emoji, i) => (
         <div
           key={i}
@@ -253,7 +259,7 @@ export default function QuizInterface({ countrySlug }: { countrySlug: string }) 
               }}
             />
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-            <p style={{ color: "rgba(255,255,255,0.8)", fontWeight: 600 }}>Loading quiz for {countrySlug}...</p>
+            <p style={{ color: "rgba(255,255,255,0.8)", fontWeight: 600 }}>Loading quiz...</p>
           </div>
         </div>
       </div>
@@ -273,7 +279,7 @@ export default function QuizInterface({ countrySlug }: { countrySlug: string }) 
             <button
               className="btn-start"
               style={{ marginTop: "1.5rem", fontSize: "0.95rem", padding: "0.85rem 2rem" }}
-              onClick={() => router.push(`/${countrySlug}`)}
+              onClick={() => router.push(`/${gradeGroupSlug}`)}
             >
               ← Go Back to Start
             </button>
@@ -315,7 +321,7 @@ export default function QuizInterface({ countrySlug }: { countrySlug: string }) 
           </div>
 
           <div className="animate-fadeInUp delay-300" style={{ fontSize: "2.2rem" }}>
-            {quizData?.flagEmoji} 🕊️ 📚 🌍
+            {quizData?.emoji} 🕊️ 📚 🌍
           </div>
 
           <p
@@ -328,7 +334,7 @@ export default function QuizInterface({ countrySlug }: { countrySlug: string }) 
               opacity: 0,
             }}
           >
-            "Peace begins with a smile." — Mother Teresa
+            &quot;Peace begins with a smile.&quot; — Mother Teresa
           </p>
         </div>
       </div>
@@ -339,20 +345,20 @@ export default function QuizInterface({ countrySlug }: { countrySlug: string }) 
   if (!currentQuestion || !quizData) return null;
 
   const isLastQuestion = currentIndex === totalQuestions - 1;
-  const answeredCount = Object.keys(answers).length;
+  const answeredCount = Object.keys(answers).length + Object.keys(bonusAnswers).filter(k => bonusAnswers[k]?.trim()).length;
+  const isCurrentBonus = currentQuestion.isBonus || currentQuestion.type === "open";
 
   return (
     <div style={{ minHeight: "100vh", position: "relative", overflow: "hidden", background: "#0a0e1a" }}>
-      {/* Render Country Scenery Background */}
       {renderBackground()}
 
       {/* Main Content Area */}
       <div className="quiz-container" style={{ position: "relative", zIndex: 3 }}>
         {/* Header Bar */}
         <div className="animate-fadeInUp" style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
-          {/* Country Title Button */}
+          {/* Grade Group Title */}
           <button
-            onClick={() => router.push(`/${countrySlug}`)}
+            onClick={() => router.push(`/${gradeGroupSlug}`)}
             style={{
               background: "rgba(0,0,0,0.5)",
               backdropFilter: "blur(12px)",
@@ -369,27 +375,9 @@ export default function QuizInterface({ countrySlug }: { countrySlug: string }) 
               boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
             }}
           >
-            <span style={{ fontSize: "1.2rem" }}>{quizData.flagEmoji}</span>
+            <span style={{ fontSize: "1.2rem" }}>{quizData.emoji}</span>
             <span>{quizData.name}</span>
           </button>
-
-          {/* Monument Tag */}
-          {monument && (
-            <span
-              style={{
-                background: "rgba(0,0,0,0.4)",
-                backdropFilter: "blur(8px)",
-                border: "1px solid rgba(255,255,255,0.12)",
-                borderRadius: "100px",
-                padding: "0.35rem 0.85rem",
-                color: "rgba(255,255,255,0.85)",
-                fontSize: "0.8rem",
-                fontWeight: 600,
-              }}
-            >
-              📍 {monument}
-            </span>
-          )}
 
           {/* Student Name Tag */}
           <span
@@ -405,6 +393,22 @@ export default function QuizInterface({ countrySlug }: { countrySlug: string }) 
             }}
           >
             👤 {studentName}
+          </span>
+
+          {/* Grade Tag */}
+          <span
+            style={{
+              background: "rgba(255, 214, 0, 0.15)",
+              border: "1px solid rgba(255, 214, 0, 0.4)",
+              borderRadius: "12px",
+              padding: "0.45rem 1rem",
+              color: "#ffd600",
+              fontSize: "0.85rem",
+              fontWeight: 700,
+              backdropFilter: "blur(8px)",
+            }}
+          >
+            🎓 {studentGrade}° grado
           </span>
 
           <div style={{ flex: 1 }} />
@@ -466,7 +470,7 @@ export default function QuizInterface({ countrySlug }: { countrySlug: string }) 
           </div>
         </div>
 
-        {/* Question card with subtle Country Watermark */}
+        {/* Question card */}
         <div
           className="glass question-card animate-fadeInUp delay-200"
           key={currentQuestion.id}
@@ -479,46 +483,98 @@ export default function QuizInterface({ countrySlug }: { countrySlug: string }) 
             borderRadius: "20px",
           }}
         >
-          {/* Watermark Flag in background of question card */}
+          {/* Level badge watermark */}
           <div
             style={{
               position: "absolute",
-              right: "-10px",
-              bottom: "-20px",
-              fontSize: "7.5rem",
-              opacity: 0.08,
-              userSelect: "none",
-              pointerEvents: "none",
+              right: "12px",
+              top: "12px",
+              fontSize: "0.75rem",
+              fontWeight: 800,
+              padding: "0.25rem 0.75rem",
+              borderRadius: "8px",
+              background: LEVEL_BG[currentQuestion.level] || "rgba(21,101,192,0.15)",
+              color: LEVEL_COLORS[currentQuestion.level] || "#42a5f5",
+              border: `1px solid ${LEVEL_COLORS[currentQuestion.level] || "#42a5f5"}55`,
+              letterSpacing: "1px",
             }}
           >
-            {quizData.flagEmoji}
+            {currentQuestion.level}
           </div>
 
           <div className="question-number" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <span>Question {currentIndex + 1}</span>
+            <span>
+              {isCurrentBonus ? "⭐ Bonus Question" : `Question ${currentIndex + 1}`}
+            </span>
             <span style={{ fontSize: "0.8rem", opacity: 0.6 }}>• {quizData.name}</span>
           </div>
           <p className="question-text">{currentQuestion.text}</p>
+
+          {/* Bonus question hint */}
+          {isCurrentBonus && (
+            <p style={{ color: "#ffd600", fontSize: "0.8rem", margin: "0.5rem 0 0 0", fontStyle: "italic" }}>
+              ✍️ Write your answer below
+            </p>
+          )}
         </div>
 
-        {/* Answer options */}
-        <div className="options-grid animate-fadeInUp delay-300">
-          {OPTIONS.map((opt) => (
-            <button
-              key={opt}
-              className={`option-btn${currentAnswer === opt ? " selected" : ""}`}
-              onClick={() => handleSelect(opt)}
+        {/* Answer options — Choice Questions */}
+        {!isCurrentBonus && (
+          <div className="options-grid animate-fadeInUp delay-300">
+            {OPTIONS.map((opt) => (
+              <button
+                key={opt}
+                className={`option-btn${currentAnswer === opt ? " selected" : ""}`}
+                onClick={() => handleSelect(opt)}
+                style={{
+                  background: currentAnswer === opt ? "rgba(21, 101, 192, 0.45)" : "rgba(0, 0, 0, 0.45)",
+                  backdropFilter: "blur(16px)",
+                  border: currentAnswer === opt ? "2px solid #42a5f5" : "1px solid rgba(255, 255, 255, 0.12)",
+                }}
+              >
+                <span className="option-letter">{opt}</span>
+                <span style={{ color: "white", fontWeight: 500 }}>{getOptionText(currentQuestion, opt)}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Answer input — Bonus / Open Questions */}
+        {isCurrentBonus && (
+          <div className="animate-fadeInUp delay-300">
+            <textarea
+              value={bonusAnswers[currentQuestion.id] || ""}
+              onChange={(e) => handleBonusInput(e.target.value)}
+              placeholder="Type your answer here..."
+              rows={4}
               style={{
-                background: currentAnswer === opt ? "rgba(21, 101, 192, 0.45)" : "rgba(0, 0, 0, 0.45)",
+                width: "100%",
+                padding: "1rem 1.25rem",
+                borderRadius: "16px",
+                border: bonusAnswers[currentQuestion.id]?.trim()
+                  ? "2px solid #42a5f5"
+                  : "1px solid rgba(255,255,255,0.15)",
+                background: "rgba(0, 0, 0, 0.45)",
                 backdropFilter: "blur(16px)",
-                border: currentAnswer === opt ? "2px solid #42a5f5" : "1px solid rgba(255, 255, 255, 0.12)",
+                color: "white",
+                fontSize: "1rem",
+                fontFamily: "inherit",
+                resize: "vertical",
+                outline: "none",
+                transition: "border-color 0.2s ease",
+                boxSizing: "border-box",
               }}
-            >
-              <span className="option-letter">{opt}</span>
-              <span style={{ color: "white", fontWeight: 500 }}>{getOptionText(currentQuestion, opt)}</span>
-            </button>
-          ))}
-        </div>
+              onFocus={(e) => {
+                e.target.style.borderColor = "#42a5f5";
+              }}
+              onBlur={(e) => {
+                if (!bonusAnswers[currentQuestion.id]?.trim()) {
+                  e.target.style.borderColor = "rgba(255,255,255,0.15)";
+                }
+              }}
+            />
+          </div>
+        )}
 
         {/* Navigation */}
         <div
@@ -540,38 +596,49 @@ export default function QuizInterface({ countrySlug }: { countrySlug: string }) 
           </button>
 
           <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", justifyContent: "center" }}>
-            {quizData.questions.map((q, i) => (
-              <button
-                key={q.id}
-                onClick={() => setCurrentIndex(i)}
-                title={`Question ${i + 1}`}
-                style={{
-                  width: 34,
-                  height: 34,
-                  borderRadius: "10px",
-                  border: "none",
-                  cursor: "pointer",
-                  fontSize: "0.75rem",
-                  fontWeight: 700,
-                  transition: "all 0.2s",
-                  background:
-                    i === currentIndex
-                      ? "#1565c0"
-                      : answers[q.id]
-                      ? "rgba(76, 175, 80, 0.45)"
-                      : "rgba(0, 0, 0, 0.45)",
-                  color:
-                    i === currentIndex
-                      ? "white"
-                      : answers[q.id]
-                      ? "#a5d6a7"
-                      : "rgba(255,255,255,0.6)",
-                  boxShadow: i === currentIndex ? "0 0 14px rgba(33,150,243,0.7)" : "none",
-                }}
-              >
-                {i + 1}
-              </button>
-            ))}
+            {allDisplayQuestions.map((q, i) => {
+              const isQBonus = q.isBonus || q.type === "open";
+              const isQAnswered = isQBonus
+                ? !!bonusAnswers[q.id]?.trim()
+                : !!answers[q.id];
+
+              return (
+                <button
+                  key={q.id}
+                  onClick={() => setCurrentIndex(i)}
+                  title={`${isQBonus ? "Bonus" : "Question"} ${i + 1}`}
+                  style={{
+                    width: 34,
+                    height: 34,
+                    borderRadius: "10px",
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: "0.75rem",
+                    fontWeight: 700,
+                    transition: "all 0.2s",
+                    background:
+                      i === currentIndex
+                        ? "#1565c0"
+                        : isQAnswered
+                        ? isQBonus
+                          ? "rgba(255, 214, 0, 0.35)"
+                          : "rgba(76, 175, 80, 0.45)"
+                        : "rgba(0, 0, 0, 0.45)",
+                    color:
+                      i === currentIndex
+                        ? "white"
+                        : isQAnswered
+                        ? isQBonus
+                          ? "#ffd600"
+                          : "#a5d6a7"
+                        : "rgba(255,255,255,0.6)",
+                    boxShadow: i === currentIndex ? "0 0 14px rgba(33,150,243,0.7)" : "none",
+                  }}
+                >
+                  {isQBonus ? "⭐" : i + 1}
+                </button>
+              );
+            })}
           </div>
 
           {isLastQuestion ? (

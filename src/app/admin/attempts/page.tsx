@@ -1,6 +1,6 @@
 /**
  * Admin Attempts/Submissions page — /admin/attempts
- * Shows all quiz submissions with student name, country, date, score, and result.
+ * Shows all quiz submissions with student name, grade group, date, score, and result.
  */
 
 import { prisma } from "@/lib/db";
@@ -18,7 +18,7 @@ export default async function AttemptsPage() {
   const attempts = await prisma.attempt.findMany({
     orderBy: { createdAt: "desc" },
     take: 200,
-    include: { country: { select: { name: true, flagEmoji: true } } },
+    include: { gradeGroup: { select: { name: true, emoji: true } } },
   });
 
   return (
@@ -44,7 +44,8 @@ export default async function AttemptsPage() {
             <thead>
               <tr>
                 <th>Student Name</th>
-                <th>Country</th>
+                <th>Grade</th>
+                <th>Grade Group</th>
                 <th>Date</th>
                 <th>Time</th>
                 <th>Score</th>
@@ -64,9 +65,14 @@ export default async function AttemptsPage() {
                       </span>
                     </td>
                     <td>
+                      <span style={{ fontWeight: 600, color: "rgba(255,255,255,0.8)" }}>
+                        {a.studentGrade || "-"}
+                      </span>
+                    </td>
+                    <td>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                        <span style={{ fontSize: "1.2rem" }}>{a.country.flagEmoji}</span>
-                        <span style={{ fontWeight: 600 }}>{a.country.name}</span>
+                        <span style={{ fontSize: "1.2rem" }}>{a.gradeGroup?.emoji}</span>
+                        <span style={{ fontWeight: 600 }}>{a.gradeGroup?.name}</span>
                       </div>
                     </td>
                     <td style={{ color: "rgba(255,255,255,0.6)" }}>

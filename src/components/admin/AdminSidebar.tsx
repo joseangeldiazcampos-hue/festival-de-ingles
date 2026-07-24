@@ -9,7 +9,7 @@ import { signOut } from "next-auth/react";
 
 const navItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: "📊" },
-  { href: "/admin/countries", label: "Countries & Quizzes", icon: "🌍" },
+  { href: "/admin/grade-groups", label: "Grade Groups", icon: "🎓" },
   { href: "/admin/attempts", label: "Submissions", icon: "📋" },
   { href: "/admin/winners", label: "Winners ⭐", icon: "🏆" },
 ];

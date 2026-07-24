@@ -1,39 +1,41 @@
 /**
- * Country Landing Page — /[country]
- * Shows the country flag, name, peace theme, and a "Start Quiz" button.
- * Fetches country data from the DB to verify it exists and is active.
+ * Grade Group Landing Page — /[gradeGroup]
+ * Shows the grade group info, theme, and a grade selector + "Start Quiz" button.
+ * Fetches grade group data from the DB to verify it exists and is active.
  */
 
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
-import CountryLanding from "@/components/quiz/QuizLanding";
+import QuizLanding from "@/components/quiz/QuizLanding";
 import type { Metadata } from "next";
 
 interface Props {
-  params: Promise<{ country: string }>;
+  params: Promise<{ gradeGroup: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { country } = await params;
-  const data = await prisma.country.findUnique({ where: { slug: country } });
+  const { gradeGroup } = await params;
+  const data = await prisma.gradeGroup.findUnique({ where: { slug: gradeGroup } });
   if (!data) return { title: "Not Found" };
   return {
     title: `${data.name} – Violence Is Never The Answer | English Festival`,
-    description: `Take the English quiz for ${data.name} on the theme: Violence Is Never The Answer.`,
+    description: `Take the English quiz for ${data.name} (${data.levels}) on the theme: Violence Is Never The Answer.`,
   };
 }
 
-export default async function CountryPage({ params }: Props) {
-  const { country } = await params;
+export default async function GradeGroupPage({ params }: Props) {
+  const { gradeGroup } = await params;
 
-  const data = await prisma.country.findUnique({
-    where: { slug: country },
+  const data = await prisma.gradeGroup.findUnique({
+    where: { slug: gradeGroup },
     select: {
       id: true,
       name: true,
       slug: true,
-      flagEmoji: true,
-      monument: true,
+      grades: true,
+      levels: true,
+      emoji: true,
+      description: true,
       isActive: true,
       _count: { select: { questions: true } },
     },
@@ -66,11 +68,13 @@ export default async function CountryPage({ params }: Props) {
   }
 
   return (
-    <CountryLanding
+    <QuizLanding
       name={data.name}
       slug={data.slug}
-      flagEmoji={data.flagEmoji ?? "🌍"}
-      monument={data.monument ?? ""}
+      grades={data.grades}
+      levels={data.levels}
+      emoji={data.emoji ?? "📚"}
+      description={data.description ?? ""}
       questionCount={data._count.questions}
     />
   );
