@@ -75,6 +75,7 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
   const [bonusAnswers, setBonusAnswers] = useState<Record<string, string>>({});
   const [error, setError] = useState<string>("");
   const [isPerfectScore, setIsPerfectScore] = useState<boolean>(false);
+  const [alreadySubmitted, setAlreadySubmitted] = useState<boolean>(false);
 
   // Separate questions by type
   const choiceQuestions = quizData?.questions.filter(q => q.type === "choice" && !q.isBonus) ?? [];
@@ -98,6 +99,13 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
 
   // Retrieve student name and grade on mount
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isCompleted = localStorage.getItem(`completed_${gradeGroupSlug}`);
+      if (isCompleted === "true") {
+        setAlreadySubmitted(true);
+      }
+    }
+
     let name = searchParams.get("name") || "";
     let grade = searchParams.get("grade") || "";
 
@@ -186,6 +194,10 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
         setIsPerfectScore(true);
       }
 
+      if (typeof window !== "undefined") {
+        localStorage.setItem(`completed_${gradeGroupSlug}`, "true");
+      }
+
       setState("success");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Something went wrong. Please try again.";
@@ -246,6 +258,60 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
       ))}
     </>
   );
+
+  // ─── Already Submitted Lock Screen ──────────────────────────────────
+  if (alreadySubmitted) {
+    return (
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          zIndex: 99999,
+          background: "#000000",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "1.5rem",
+          textAlign: "center",
+          fontFamily: "'Outfit', 'Montserrat', 'Inter', system-ui, sans-serif",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 480,
+            width: "100%",
+            padding: "2.5rem 2rem",
+            background: "rgba(20, 20, 20, 0.95)",
+            border: "2px solid #ef5350",
+            borderRadius: "24px",
+            boxShadow: "0 0 40px rgba(239, 83, 80, 0.3)",
+          }}
+        >
+          <div style={{ fontSize: "4.5rem", marginBottom: "0.5rem" }}>🛑</div>
+          <h2 style={{ color: "#ef5350", fontSize: "1.8rem", fontWeight: 800, margin: "0 0 0.75rem 0" }}>
+            Intento Ya Completado / Quiz Submitted
+          </h2>
+          <p style={{ color: "rgba(255,255,255,0.85)", fontSize: "0.95rem", lineHeight: 1.6, margin: "0 0 1.25rem 0" }}>
+            Ya has enviado tu respuesta para este examen. Por razones de seguridad e imparcialidad, recargar la página o volver atrás no permite repetir la prueba.
+          </p>
+          <div
+            style={{
+              background: "rgba(255, 214, 0, 0.15)",
+              border: "1px solid rgba(255, 214, 0, 0.4)",
+              borderRadius: "12px",
+              padding: "0.85rem 1rem",
+              color: "#ffd600",
+              fontSize: "0.9rem",
+              fontWeight: 700,
+            }}
+          >
+            📱 Para iniciar un nuevo intento, debes escanear el código QR nuevamente.
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // ─── Loading State ────────────────────────────────────────────────
   if (state === "loading") {

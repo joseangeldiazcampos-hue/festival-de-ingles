@@ -82,6 +82,7 @@ export default function QuizLanding({ name, slug, grades, levels, emoji, descrip
     if (typeof window !== "undefined") {
       localStorage.setItem("quiz_student_name", cleanName);
       localStorage.setItem("quiz_student_grade", selectedGrade);
+      localStorage.removeItem(`completed_${slug}`);
     }
     router.push(`/${slug}/quiz?name=${encodeURIComponent(cleanName)}&grade=${selectedGrade}`);
   };
