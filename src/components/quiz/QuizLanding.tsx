@@ -21,11 +21,11 @@ interface Props {
 }
 
 const GRADE_LABELS: Record<string, string> = {
-  "7": "7mo — Sétimo",
-  "8": "8vo — Octavo",
-  "9": "9no — Noveno",
-  "10": "10mo — Décimo",
-  "11": "11mo — Undécimo",
+  "7": "7th Grade",
+  "8": "8th Grade",
+  "9": "9th Grade",
+  "10": "10th Grade",
+  "11": "11th Grade",
 };
 
 const ALL_GRADES = ["7", "8", "9", "10", "11"];
@@ -310,7 +310,7 @@ export default function QuizLanding({ name, slug, grades, levels, emoji, descrip
                     boxShadow: selectedGrade === grade ? "0 0 16px rgba(33,150,243,0.4)" : "none",
                   }}
                 >
-                  {GRADE_LABELS[grade] || `Grade ${grade}`}
+                  {GRADE_LABELS[grade] || `${grade}th Grade`}
                 </button>
               ))}
             </div>

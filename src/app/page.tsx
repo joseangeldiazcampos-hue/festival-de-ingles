@@ -7,27 +7,27 @@ import Link from "next/link";
 
 const gradeGroups = [
   {
-    name: "7mo y 8vo",
+    name: "7th & 8th Grade",
     slug: "7-8",
     emoji: "📚",
     levels: "A1 · A2",
-    description: "Sétimo y Octavo grado",
+    description: "English Speed Challenge!",
     gradient: "linear-gradient(135deg, #1565c0, #0d47a1)",
   },
   {
-    name: "9no a 11mo",
+    name: "9th to 11th Grade",
     slug: "9-10-11",
     emoji: "🎯",
     levels: "A2 · B1",
-    description: "Noveno, Décimo y Undécimo grado",
+    description: "English Speed Challenge!",
     gradient: "linear-gradient(135deg, #e65100, #bf360c)",
   },
   {
-    name: "Desafío",
+    name: "Challenge B2",
     slug: "challenge",
     emoji: "🏆",
     levels: "B2",
-    description: "Nivel avanzado — Todos los grados",
+    description: "English Speed Challenge!",
     gradient: "linear-gradient(135deg, #b71c1c, #880e4f)",
   },
 ];

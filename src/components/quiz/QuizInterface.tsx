@@ -408,7 +408,7 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
               backdropFilter: "blur(8px)",
             }}
           >
-            🎓 {studentGrade}° grado
+            🎓 {studentGrade}th Grade
           </span>
 
           <div style={{ flex: 1 }} />

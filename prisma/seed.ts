@@ -11,30 +11,30 @@ const prisma = new PrismaClient();
 
 const gradeGroups = [
   {
-    name: "7mo y 8vo",
+    name: "7th & 8th Grade",
     slug: "7-8",
     grades: "7,8",
     levels: "A1,A2",
     emoji: "📚",
-    description: "Quiz para estudiantes de sétimo y octavo grado — Niveles A1 y A2",
+    description: "English Speed Challenge!",
     order: 1,
   },
   {
-    name: "9no a 11mo",
+    name: "9th to 11th Grade",
     slug: "9-10-11",
     grades: "9,10,11",
     levels: "A2,B1",
     emoji: "🎯",
-    description: "Quiz para estudiantes de noveno, décimo y undécimo grado — Niveles A2 y B1",
+    description: "English Speed Challenge!",
     order: 2,
   },
   {
-    name: "Desafío",
+    name: "Challenge B2",
     slug: "challenge",
     grades: "all",
     levels: "B2",
     emoji: "🏆",
-    description: "Desafío de nivel avanzado B2 — Abierto para todos los grados",
+    description: "English Speed Challenge!",
     order: 3,
   },
 ];
