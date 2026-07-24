@@ -54,6 +54,7 @@ export default function QuizLanding({ name, slug, grades, levels, emoji, descrip
   const [selectedGrade, setSelectedGrade] = useState("");
   const [nameError, setNameError] = useState("");
   const [gradeError, setGradeError] = useState("");
+  const [showVolumeModal, setShowVolumeModal] = useState(false);
 
   const availableGrades = grades === "all" ? ALL_GRADES : grades.split(",");
   const levelList = levels.split(",");
@@ -80,6 +81,11 @@ export default function QuizLanding({ name, slug, grades, levels, emoji, descrip
 
     if (hasError) return;
 
+    // Show Volume Modal Prank/Notice
+    setShowVolumeModal(true);
+  };
+
+  const confirmStart = () => {
     const cleanName = studentName.trim();
     if (typeof window !== "undefined") {
       localStorage.setItem("quiz_student_name", cleanName);
@@ -91,6 +97,41 @@ export default function QuizLanding({ name, slug, grades, levels, emoji, descrip
 
   return (
     <div style={{ minHeight: "100vh", position: "relative", overflow: "hidden", background: "#0a0e1a" }}>
+      {/* Volume Modal Notice */}
+      {showVolumeModal && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(0,0,0,0.85)", backdropFilter: "blur(20px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem" }}>
+          <div style={{ maxWidth: 450, width: "100%", background: "linear-gradient(135deg, #0d3f2f, #061f17)", border: "3px solid #f472b6", borderRadius: "28px", padding: "2.2rem", textAlign: "center", boxShadow: "0 0 50px rgba(244, 114, 182, 0.5)" }}>
+            <div style={{ fontSize: "4.5rem", marginBottom: "0.5rem" }}>🔊 🎧</div>
+            <h2 style={{ color: "#f472b6", fontSize: "1.7rem", fontWeight: 900, margin: "0 0 0.75rem 0" }}>
+              ¡Sube el Volumen de tu Dispositivo!
+            </h2>
+            <p style={{ color: "#7dd3fc", fontSize: "0.95rem", fontWeight: 800, margin: "0 0 0.5rem 0", letterSpacing: "1px" }}>
+              📢 INSTRUCCIÓN IMPORTANTE:
+            </p>
+            <p style={{ color: "rgba(253, 242, 248, 0.95)", fontSize: "0.95rem", lineHeight: 1.6, margin: "0 0 1.6rem 0" }}>
+              Este examen contiene componentes de escucha y audio. <strong>Asegúrate de subir el volumen de tu celular o dispositivo al 100%</strong> para escuchar correctamente las preguntas.
+            </p>
+            <button
+              onClick={confirmStart}
+              style={{
+                width: "100%",
+                padding: "1.15rem",
+                background: "linear-gradient(135deg, #f472b6, #38bdf8)",
+                border: "none",
+                borderRadius: "100px",
+                color: "white",
+                fontSize: "1.1rem",
+                fontWeight: 900,
+                cursor: "pointer",
+                boxShadow: "0 0 30px rgba(244, 114, 182, 0.6)",
+                letterSpacing: "0.5px",
+              }}
+            >
+              🔊 ¡Listo, volumen al 100%! Continuar →
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── Animated gradient background ── */}
       <div className="bg-animated" style={{ position: "fixed", inset: 0, zIndex: 0 }} />

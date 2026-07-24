@@ -133,27 +133,35 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
         return res.json();
       })
       .then((data: QuizData) => {
-        // Generate randomized option order for choice questions on each attempt
+        // 1. Separate choice and bonus questions
+        const choiceQs = data.questions.filter((q) => q.type === "choice" && !q.isBonus);
+        const bonusQs = data.questions.filter((q) => q.isBonus || q.type === "open");
+
+        // 2. Shuffle choice question order for 100% unpredictability per attempt
+        for (let i = choiceQs.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [choiceQs[i], choiceQs[j]] = [choiceQs[j], choiceQs[i]];
+        }
+
+        // 3. Shuffle options for each question
         const optionsMap: Record<string, Array<{ key: string; text: string }>> = {};
-        data.questions.forEach((q) => {
-          if (q.type === "choice" && !q.isBonus) {
-            const rawOptions = [
-              { key: "A", text: q.optionA || "" },
-              { key: "B", text: q.optionB || "" },
-              { key: "C", text: q.optionC || "" },
-              { key: "D", text: q.optionD || "" },
-            ].filter((o) => o.text && o.text.trim().length > 0);
+        choiceQs.forEach((q) => {
+          const rawOptions = [
+            { key: "A", text: q.optionA || "" },
+            { key: "B", text: q.optionB || "" },
+            { key: "C", text: q.optionC || "" },
+            { key: "D", text: q.optionD || "" },
+          ].filter((o) => o.text && o.text.trim().length > 0);
 
-            // Fisher-Yates shuffle
-            for (let i = rawOptions.length - 1; i > 0; i--) {
-              const j = Math.floor(Math.random() * (i + 1));
-              [rawOptions[i], rawOptions[j]] = [rawOptions[j], rawOptions[i]];
-            }
-
-            optionsMap[q.id] = rawOptions;
+          for (let i = rawOptions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [rawOptions[i], rawOptions[j]] = [rawOptions[j], rawOptions[i]];
           }
+
+          optionsMap[q.id] = rawOptions;
         });
 
+        data.questions = [...choiceQs, ...bonusQs];
         setShuffledOptionsMap(optionsMap);
         setQuizData(data);
         setState("quiz");

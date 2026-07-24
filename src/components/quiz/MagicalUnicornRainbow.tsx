@@ -110,21 +110,21 @@ export default function MagicalUnicornRainbow() {
           </div>
         ))}
 
-        {/* Large, Vivid AI Unicorn Artwork Card with Dancing Motion */}
+        {/* Large, Vivid AI Dancing Unicorn Artwork Card */}
         <div
           style={{
             position: "absolute",
             top: "18%",
             left: "0%",
-            width: "220px",
-            height: "220px",
+            width: "240px",
+            height: "240px",
             borderRadius: "32px",
             overflow: "hidden",
-            border: "4px solid #38bdf8",
+            border: "4px solid #f472b6",
             boxShadow: `
-              0 0 40px rgba(56, 189, 248, 0.9),
-              0 0 80px rgba(74, 222, 128, 0.8),
-              0 0 120px rgba(213, 0, 249, 0.6)
+              0 0 45px rgba(244, 114, 182, 0.9),
+              0 0 90px rgba(56, 189, 248, 0.8),
+              0 0 130px rgba(74, 222, 128, 0.7)
             `,
             animation: "glideUnicorn 6.0s cubic-bezier(0.35, 0, 0.25, 1) forwards 0.2s",
             background: "#000000",
@@ -132,11 +132,14 @@ export default function MagicalUnicornRainbow() {
           }}
         >
           {/* Inner Dancing Image Wrapper */}
-          <div style={{ width: "100%", height: "100%", animation: "danceMove 0.75s ease-in-out infinite" }}>
+          <div style={{ width: "100%", height: "100%", animation: "danceMove 0.65s ease-in-out infinite" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/magical_unicorn.jpg"
+              src="/unicorn_dance.gif"
               alt="Magical AI Dancing Unicorn"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).src = "/magical_unicorn.jpg";
+              }}
               style={{
                 width: "100%",
                 height: "100%",
@@ -149,7 +152,7 @@ export default function MagicalUnicornRainbow() {
             style={{
               position: "absolute",
               inset: 0,
-              boxShadow: "inset 0 0 30px rgba(56, 189, 248, 0.5)",
+              boxShadow: "inset 0 0 30px rgba(244, 114, 182, 0.6)",
               pointerEvents: "none",
             }}
           />
