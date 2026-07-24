@@ -275,7 +275,7 @@ export default function QuizLanding({ name, slug, grades, levels, emoji, descrip
                 display: "block",
                 fontSize: "0.85rem",
                 fontWeight: 600,
-                color: "#ffd600",
+                color: "#4ade80",
                 marginBottom: "0.5rem",
                 letterSpacing: "0.5px",
               }}
@@ -296,19 +296,19 @@ export default function QuizLanding({ name, slug, grades, levels, emoji, descrip
                     padding: "0.75rem 1rem",
                     borderRadius: "12px",
                     border: selectedGrade === grade
-                      ? "2px solid #42a5f5"
+                      ? "2px solid #4ade80"
                       : gradeError
                       ? "2px solid #ef5350"
-                      : "1px solid rgba(255,255,255,0.2)",
+                      : "1px solid rgba(56,189,248,0.25)",
                     background: selectedGrade === grade
-                      ? "rgba(21, 101, 192, 0.45)"
-                      : "rgba(255,255,255,0.08)",
-                    color: selectedGrade === grade ? "white" : "rgba(255,255,255,0.8)",
+                      ? "linear-gradient(135deg, rgba(56, 189, 248, 0.4), rgba(74, 222, 128, 0.4))"
+                      : "rgba(56, 189, 248, 0.08)",
+                    color: selectedGrade === grade ? "#ffffff" : "rgba(224,242,254,0.85)",
                     cursor: "pointer",
                     fontSize: "0.9rem",
                     fontWeight: selectedGrade === grade ? 700 : 500,
                     transition: "all 0.2s ease",
-                    boxShadow: selectedGrade === grade ? "0 0 16px rgba(33,150,243,0.4)" : "none",
+                    boxShadow: selectedGrade === grade ? "0 0 20px rgba(74,222,128,0.5)" : "none",
                   }}
                 >
                   {GRADE_LABELS[grade] || `${grade}th Grade`}

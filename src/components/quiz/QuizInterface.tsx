@@ -535,15 +535,15 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
               marginBottom: "0.5rem",
             }}
           >
-            <span style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>
+            <span style={{ fontSize: "0.8rem", color: "rgba(224,242,254,0.85)", fontWeight: 600 }}>
               Question {currentIndex + 1} of {totalQuestions}
             </span>
-            <span style={{ fontSize: "0.8rem", color: "#42a5f5", fontWeight: 700 }}>
+            <span style={{ fontSize: "0.8rem", color: "#4ade80", fontWeight: 700 }}>
               {Math.round(progress)}%
             </span>
           </div>
           <div className="progress-bar-track" style={{ background: "rgba(0,0,0,0.4)" }}>
-            <div className="progress-bar-fill" style={{ width: `${progress}%` }} />
+            <div className="progress-bar-fill" style={{ width: `${progress}%`, background: "linear-gradient(90deg, #38bdf8, #4ade80)" }} />
           </div>
         </div>
 
@@ -554,9 +554,9 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
           style={{
             position: "relative",
             overflow: "hidden",
-            background: "rgba(0, 0, 0, 0.55)",
+            background: "rgba(4, 13, 26, 0.65)",
             backdropFilter: "blur(24px)",
-            border: "1px solid rgba(255,255,255,0.15)",
+            border: "1px solid rgba(56, 189, 248, 0.25)",
             borderRadius: "20px",
           }}
         >
@@ -570,9 +570,9 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
               fontWeight: 800,
               padding: "0.25rem 0.75rem",
               borderRadius: "8px",
-              background: LEVEL_BG[currentQuestion.level] || "rgba(21,101,192,0.15)",
-              color: LEVEL_COLORS[currentQuestion.level] || "#42a5f5",
-              border: `1px solid ${LEVEL_COLORS[currentQuestion.level] || "#42a5f5"}55`,
+              background: "rgba(56, 189, 248, 0.15)",
+              color: "#38bdf8",
+              border: "1px solid rgba(56, 189, 248, 0.4)",
               letterSpacing: "1px",
             }}
           >
@@ -589,7 +589,7 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
 
           {/* Bonus question hint */}
           {isCurrentBonus && (
-            <p style={{ color: "#ffd600", fontSize: "0.8rem", margin: "0.5rem 0 0 0", fontStyle: "italic" }}>
+            <p style={{ color: "#4ade80", fontSize: "0.8rem", margin: "0.5rem 0 0 0", fontStyle: "italic" }}>
               ✍️ Write your answer below
             </p>
           )}
@@ -604,9 +604,10 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
                 className={`option-btn${currentAnswer === opt ? " selected" : ""}`}
                 onClick={() => handleSelect(opt)}
                 style={{
-                  background: currentAnswer === opt ? "rgba(21, 101, 192, 0.45)" : "rgba(0, 0, 0, 0.45)",
+                  background: currentAnswer === opt ? "linear-gradient(135deg, rgba(56, 189, 248, 0.4), rgba(74, 222, 128, 0.4))" : "rgba(56, 189, 248, 0.06)",
                   backdropFilter: "blur(16px)",
-                  border: currentAnswer === opt ? "2px solid #42a5f5" : "1px solid rgba(255, 255, 255, 0.12)",
+                  border: currentAnswer === opt ? "2px solid #4ade80" : "1px solid rgba(56, 189, 248, 0.25)",
+                  boxShadow: currentAnswer === opt ? "0 0 20px rgba(74, 222, 128, 0.4)" : "none",
                 }}
               >
                 <span className="option-letter">{opt}</span>
@@ -629,9 +630,9 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
                 padding: "1rem 1.25rem",
                 borderRadius: "16px",
                 border: bonusAnswers[currentQuestion.id]?.trim()
-                  ? "2px solid #42a5f5"
-                  : "1px solid rgba(255,255,255,0.15)",
-                background: "rgba(0, 0, 0, 0.45)",
+                  ? "2px solid #4ade80"
+                  : "1px solid rgba(56,189,248,0.25)",
+                background: "rgba(4, 13, 26, 0.65)",
                 backdropFilter: "blur(16px)",
                 color: "white",
                 fontSize: "1rem",
@@ -642,11 +643,11 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
                 boxSizing: "border-box",
               }}
               onFocus={(e) => {
-                e.target.style.borderColor = "#42a5f5";
+                e.target.style.borderColor = "#4ade80";
               }}
               onBlur={(e) => {
                 if (!bonusAnswers[currentQuestion.id]?.trim()) {
-                  e.target.style.borderColor = "rgba(255,255,255,0.15)";
+                  e.target.style.borderColor = "rgba(56,189,248,0.25)";
                 }
               }}
             />

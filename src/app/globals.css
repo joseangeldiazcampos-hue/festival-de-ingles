@@ -2,18 +2,20 @@
 
 /* ─── Custom CSS Variables ─────────────────────────────────────── */
 :root {
-  --primary: #1565c0;
-  --primary-dark: #0d47a1;
-  --primary-light: #42a5f5;
-  --accent: #ffd600;
-  --accent-warm: #ff8f00;
-  --success: #2e7d32;
-  --danger: #c62828;
-  --bg-dark: #0a0e1a;
-  --bg-card: rgba(255, 255, 255, 0.05);
+  --primary: #38bdf8;         /* Light Sky Blue */
+  --primary-dark: #0284c7;    /* Rich Ocean Blue */
+  --primary-light: #7dd3fc;   /* Soft Light Blue */
+  --accent: #4ade80;          /* Vibrant Light Green */
+  --accent-mint: #2dd4bf;     /* Aqua Mint */
+  --accent-warm: #34d399;     /* Light Emerald Green */
+  --success: #4ade80;         /* Light Green */
+  --danger: #f87171;          /* Soft Red */
+  --bg-dark: #040d1a;         /* Deep Cyan Midnight */
+  --bg-card: rgba(56, 189, 248, 0.06);
   --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.75);
-  --glass-border: rgba(255, 255, 255, 0.12);
+  --text-secondary: rgba(224, 242, 254, 0.85);
+  --glass-border: rgba(56, 189, 248, 0.22);
+  --glass-border-green: rgba(74, 222, 128, 0.25);
 }
 
 /* ─── Base Reset & Responsive Fixes ────────────────────────────── */
@@ -39,7 +41,7 @@ body {
 
 /* ─── Animated Background ──────────────────────────────────────── */
 .bg-animated {
-  background: linear-gradient(135deg, #0a0e1a 0%, #0d1b4b 40%, #0a1628 70%, #0d0a1a 100%);
+  background: linear-gradient(135deg, #040d1a 0%, #062238 40%, #031c2e 70%, #04121d 100%);
   position: relative;
   overflow: hidden;
 }
@@ -51,9 +53,9 @@ body {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(ellipse at 20% 50%, rgba(21, 101, 192, 0.15) 0%, transparent 60%),
-              radial-gradient(ellipse at 80% 20%, rgba(255, 214, 0, 0.08) 0%, transparent 50%),
-              radial-gradient(ellipse at 60% 80%, rgba(66, 165, 245, 0.10) 0%, transparent 50%);
+  background: radial-gradient(ellipse at 20% 50%, rgba(56, 189, 248, 0.20) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 20%, rgba(74, 222, 128, 0.18) 0%, transparent 55%),
+              radial-gradient(ellipse at 60% 80%, rgba(125, 211, 252, 0.15) 0%, transparent 50%);
   animation: bg-pulse 12s ease-in-out infinite alternate;
   pointer-events: none;
   z-index: 0;

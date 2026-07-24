@@ -12,7 +12,7 @@ const gradeGroups = [
     emoji: "📚",
     levels: "A1 · A2",
     description: "English Speed Challenge!",
-    gradient: "linear-gradient(135deg, #1565c0, #0d47a1)",
+    gradient: "linear-gradient(135deg, #0284c7, #38bdf8)",
   },
   {
     name: "9th to 11th Grade",
@@ -20,7 +20,7 @@ const gradeGroups = [
     emoji: "🎯",
     levels: "A2 · B1",
     description: "English Speed Challenge!",
-    gradient: "linear-gradient(135deg, #e65100, #bf360c)",
+    gradient: "linear-gradient(135deg, #10b981, #4ade80)",
   },
   {
     name: "Challenge B2",
@@ -28,7 +28,7 @@ const gradeGroups = [
     emoji: "🏆",
     levels: "B2",
     description: "English Communication Challenge!",
-    gradient: "linear-gradient(135deg, #b71c1c, #880e4f)",
+    gradient: "linear-gradient(135deg, #00b0ff, #2dd4bf)",
   },
 ];
 
