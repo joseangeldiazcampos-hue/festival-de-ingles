@@ -181,7 +181,7 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
         throw new Error(resData.error || "Submission failed");
       }
 
-      if (resData.isPerfect) {
+      if (resData.isPerfect || (resData.correct && resData.correct === resData.total)) {
         setIsPerfectScore(true);
       }
 

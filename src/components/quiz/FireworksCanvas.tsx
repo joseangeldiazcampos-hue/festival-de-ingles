@@ -168,7 +168,9 @@ export default function FireworksCanvas() {
       style={{
         position: "fixed",
         inset: 0,
-        zIndex: 2,
+        width: "100vw",
+        height: "100vh",
+        zIndex: 9999,
         pointerEvents: "none",
       }}
     />
