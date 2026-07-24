@@ -27,7 +27,7 @@ const gradeGroups = [
     slug: "challenge",
     emoji: "🏆",
     levels: "B2",
-    description: "English Speed Challenge!",
+    description: "English Communication Challenge!",
     gradient: "linear-gradient(135deg, #b71c1c, #880e4f)",
   },
 ];

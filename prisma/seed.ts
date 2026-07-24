@@ -34,7 +34,7 @@ const gradeGroups = [
     grades: "all",
     levels: "B2",
     emoji: "🏆",
-    description: "English Speed Challenge!",
+    description: "English Communication Challenge!",
     order: 3,
   },
 ];
