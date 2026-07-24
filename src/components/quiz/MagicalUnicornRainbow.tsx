@@ -110,14 +110,14 @@ export default function MagicalUnicornRainbow() {
           </div>
         ))}
 
-        {/* Large, Vivid AI Unicorn Artwork Card */}
+        {/* Large, Vivid AI Unicorn Artwork Card with Dancing Motion */}
         <div
           style={{
             position: "absolute",
             top: "18%",
             left: "0%",
-            width: "240px",
-            height: "240px",
+            width: "220px",
+            height: "220px",
             borderRadius: "32px",
             overflow: "hidden",
             border: "4px solid #38bdf8",
@@ -126,22 +126,25 @@ export default function MagicalUnicornRainbow() {
               0 0 80px rgba(74, 222, 128, 0.8),
               0 0 120px rgba(213, 0, 249, 0.6)
             `,
-            animation: "glideUnicorn 5.5s cubic-bezier(0.35, 0, 0.25, 1) forwards 0.2s",
+            animation: "glideUnicorn 6.0s cubic-bezier(0.35, 0, 0.25, 1) forwards 0.2s",
             background: "#000000",
             zIndex: 4,
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/magical_unicorn.jpg"
-            alt="Magical AI Unicorn"
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              filter: "contrast(1.1) brightness(1.1)",
-            }}
-          />
+          {/* Inner Dancing Image Wrapper */}
+          <div style={{ width: "100%", height: "100%", animation: "danceMove 0.75s ease-in-out infinite" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/magical_unicorn.jpg"
+              alt="Magical AI Dancing Unicorn"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                filter: "contrast(1.15) brightness(1.1)",
+              }}
+            />
+          </div>
           <div
             style={{
               position: "absolute",
@@ -187,6 +190,14 @@ export default function MagicalUnicornRainbow() {
             transform: translate(920px, 240px) scale(0.85);
             opacity: 1;
           }
+        }
+
+        @keyframes danceMove {
+          0% { transform: rotate(-10deg) translateY(0px) scale(1); }
+          25% { transform: rotate(10deg) translateY(-14px) scale(1.06); }
+          50% { transform: rotate(-10deg) translateY(0px) scale(1); }
+          75% { transform: rotate(10deg) translateY(-14px) scale(1.06); }
+          100% { transform: rotate(-10deg) translateY(0px) scale(1); }
         }
 
         @keyframes sparklePulse {

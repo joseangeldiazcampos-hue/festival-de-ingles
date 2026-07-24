@@ -76,6 +76,7 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
   const [error, setError] = useState<string>("");
   const [isPerfectScore, setIsPerfectScore] = useState<boolean>(false);
   const [alreadySubmitted, setAlreadySubmitted] = useState<boolean>(false);
+  const [shuffledOptionsMap, setShuffledOptionsMap] = useState<Record<string, Array<{ key: string; text: string }>>>({});
 
   // Separate questions by type
   const choiceQuestions = quizData?.questions.filter(q => q.type === "choice" && !q.isBonus) ?? [];
@@ -132,6 +133,28 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
         return res.json();
       })
       .then((data: QuizData) => {
+        // Generate randomized option order for choice questions on each attempt
+        const optionsMap: Record<string, Array<{ key: string; text: string }>> = {};
+        data.questions.forEach((q) => {
+          if (q.type === "choice" && !q.isBonus) {
+            const rawOptions = [
+              { key: "A", text: q.optionA || "" },
+              { key: "B", text: q.optionB || "" },
+              { key: "C", text: q.optionC || "" },
+              { key: "D", text: q.optionD || "" },
+            ].filter((o) => o.text && o.text.trim().length > 0);
+
+            // Fisher-Yates shuffle
+            for (let i = rawOptions.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [rawOptions[i], rawOptions[j]] = [rawOptions[j], rawOptions[i]];
+            }
+
+            optionsMap[q.id] = rawOptions;
+          }
+        });
+
+        setShuffledOptionsMap(optionsMap);
         setQuizData(data);
         setState("quiz");
       })
@@ -598,22 +621,37 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
         {/* Answer options — Choice Questions */}
         {!isCurrentBonus && (
           <div className="options-grid animate-fadeInUp delay-300">
-            {OPTIONS.filter((opt) => getOptionText(currentQuestion, opt)?.trim()).map((opt) => (
-              <button
-                key={opt}
-                className={`option-btn${currentAnswer === opt ? " selected" : ""}`}
-                onClick={() => handleSelect(opt)}
-                style={{
-                  background: currentAnswer === opt ? "linear-gradient(135deg, rgba(56, 189, 248, 0.4), rgba(74, 222, 128, 0.4))" : "rgba(56, 189, 248, 0.06)",
-                  backdropFilter: "blur(16px)",
-                  border: currentAnswer === opt ? "2px solid #4ade80" : "1px solid rgba(56, 189, 248, 0.25)",
-                  boxShadow: currentAnswer === opt ? "0 0 20px rgba(74, 222, 128, 0.4)" : "none",
-                }}
-              >
-                <span className="option-letter">{opt}</span>
-                <span style={{ color: "white", fontWeight: 500 }}>{getOptionText(currentQuestion, opt)}</span>
-              </button>
-            ))}
+            {(shuffledOptionsMap[currentQuestion.id] || [
+              { key: "A", text: currentQuestion.optionA || "" },
+              { key: "B", text: currentQuestion.optionB || "" },
+              { key: "C", text: currentQuestion.optionC || "" },
+              { key: "D", text: currentQuestion.optionD || "" },
+            ].filter((o) => o.text.trim().length > 0)).map((optObj, idx) => {
+              const letterLabel = ["A", "B", "C", "D"][idx];
+              const isSelected = currentAnswer === optObj.key;
+              return (
+                <button
+                  key={optObj.key}
+                  className={`option-btn${isSelected ? " selected" : ""}`}
+                  onClick={() => handleSelect(optObj.key)}
+                  style={{
+                    background: isSelected
+                      ? "linear-gradient(135deg, rgba(56, 189, 248, 0.4), rgba(74, 222, 128, 0.4))"
+                      : "rgba(56, 189, 248, 0.06)",
+                    backdropFilter: "blur(16px)",
+                    border: isSelected
+                      ? "2px solid #4ade80"
+                      : "1px solid rgba(56, 189, 248, 0.25)",
+                    boxShadow: isSelected
+                      ? "0 0 20px rgba(74, 222, 128, 0.4)"
+                      : "none",
+                  }}
+                >
+                  <span className="option-letter">{letterLabel}</span>
+                  <span style={{ color: "white", fontWeight: 500 }}>{optObj.text}</span>
+                </button>
+              );
+            })}
           </div>
         )}
 
