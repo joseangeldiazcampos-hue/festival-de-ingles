@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import FireworksCanvas from "@/components/quiz/FireworksCanvas";
 import MagicalUnicornRainbow from "@/components/quiz/MagicalUnicornRainbow";
+import PinkPonyClubPlayer from "@/components/quiz/PinkPonyClubPlayer";
 
 interface Props {
   studentName: string;
@@ -61,6 +62,9 @@ export default function WinnerVictoryScreen({ studentName, gradeGroupSlug }: Pro
         transition: "opacity 0.8s ease-in-out",
       }}
     >
+      {/* Pink Pony Club (Chorus) Synth-Pop Audio Player */}
+      <PinkPonyClubPlayer />
+
       {/* Stage 2: Magical Unicorn & Rainbow Illustration in background */}
       {phase === 2 && <MagicalUnicornRainbow />}
 
