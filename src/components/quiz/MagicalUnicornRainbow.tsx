@@ -81,7 +81,7 @@ export default function MagicalUnicornRainbow() {
             style={{
               strokeDasharray: 1400,
               strokeDashoffset: 1400,
-              animation: "drawRainbow 5.5s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.2s",
+              animation: "drawRainbow 6.0s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.2s",
             }}
           />
         </svg>
@@ -112,13 +112,13 @@ export default function MagicalUnicornRainbow() {
             position: "absolute",
             top: "22%",
             left: "0%",
-            width: "180px",
-            height: "180px",
+            width: "160px",
+            height: "160px",
             borderRadius: "50%",
             overflow: "hidden",
             border: "3px solid #ffd600",
             boxShadow: "0 0 35px rgba(255, 214, 0, 0.9), 0 0 70px rgba(213, 0, 249, 0.7)",
-            animation: "glideUnicorn 6.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards 0.2s",
+            animation: "glideUnicorn 6.0s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.2s",
             background: "#000",
           }}
         >
@@ -150,14 +150,23 @@ export default function MagicalUnicornRainbow() {
 
         @keyframes glideUnicorn {
           0% {
-            transform: translate(0px, 120px) rotate(-10deg) scale(0.6);
+            transform: translate(20px, 220px) scale(0.7);
             opacity: 0;
           }
-          20% {
+          15% {
             opacity: 1;
           }
+          35% {
+            transform: translate(240px, 80px) scale(0.9);
+          }
+          50% {
+            transform: translate(450px, 20px) scale(1);
+          }
+          75% {
+            transform: translate(680px, 80px) scale(0.9);
+          }
           100% {
-            transform: translate(780px, 80px) rotate(8deg) scale(1);
+            transform: translate(840px, 220px) scale(0.8);
             opacity: 1;
           }
         }

@@ -18,11 +18,28 @@ export default function PinkPonyClubPlayer() {
     const audio = audioRef.current;
     if (!audio) return;
 
+    // Start playback directly at the Chorus section (~76 seconds into the song)
+    const handleCanPlay = () => {
+      if (audio.currentTime < 70) {
+        audio.currentTime = 76;
+      }
+    };
+
+    audio.addEventListener("canplay", handleCanPlay);
+
     // Try playing real vocal MP3 audio
-    audio.play().catch((err) => {
+    audio.play().then(() => {
+      if (audio.currentTime < 70) {
+        audio.currentTime = 76;
+      }
+    }).catch((err) => {
       console.log("Audio autoplay prevented by browser:", err);
       setIsPlaying(false);
     });
+
+    return () => {
+      audio.removeEventListener("canplay", handleCanPlay);
+    };
   }, []);
 
   const toggleSound = () => {
