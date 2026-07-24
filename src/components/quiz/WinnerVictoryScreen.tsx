@@ -12,6 +12,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import FireworksCanvas from "@/components/quiz/FireworksCanvas";
+import MagicalUnicornRainbow from "@/components/quiz/MagicalUnicornRainbow";
 
 interface Props {
   studentName: string;
@@ -24,18 +25,18 @@ export default function WinnerVictoryScreen({ studentName, gradeGroupSlug }: Pro
   const [fadeOutScreen, setFadeOutScreen] = useState(false);
 
   useEffect(() => {
-    // Stage 1: "WINNER" shows for 1.5 seconds, then transition to Stage 2
+    // Stage 1: "WINNER" shows for 1.6 seconds, then transition to Stage 2
     const timer1 = setTimeout(() => {
       setPhase(2);
     }, 1600);
 
-    // After 7 seconds total, fade out and return home
+    // After 8.5 seconds total, fade out and return home
     const timer2 = setTimeout(() => {
       setFadeOutScreen(true);
       setTimeout(() => {
         router.push("/");
       }, 800);
-    }, 7500);
+    }, 8500);
 
     return () => {
       clearTimeout(timer1);
@@ -60,6 +61,9 @@ export default function WinnerVictoryScreen({ studentName, gradeGroupSlug }: Pro
         transition: "opacity 0.8s ease-in-out",
       }}
     >
+      {/* Stage 2: Magical Unicorn & Rainbow Illustration in background */}
+      {phase === 2 && <MagicalUnicornRainbow />}
+
       {/* Continuous Fireworks in background */}
       <FireworksCanvas />
 
