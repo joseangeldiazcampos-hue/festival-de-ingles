@@ -106,51 +106,32 @@ export default function MagicalUnicornRainbow() {
           </div>
         ))}
 
-        {/* Magical Unicorn Vector Illustration */}
+        {/* AI Generated Magical Unicorn Artwork */}
         <div
           style={{
             position: "absolute",
-            top: "28%",
+            top: "22%",
             left: "0%",
-            width: "160px",
-            height: "160px",
+            width: "180px",
+            height: "180px",
+            borderRadius: "50%",
+            overflow: "hidden",
+            border: "3px solid #ffd600",
+            boxShadow: "0 0 35px rgba(255, 214, 0, 0.9), 0 0 70px rgba(213, 0, 249, 0.7)",
             animation: "glideUnicorn 6.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards 0.2s",
-            filter: "drop-shadow(0 0 25px rgba(255, 214, 0, 0.8))",
+            background: "#000",
           }}
         >
-          <svg viewBox="0 0 200 200" style={{ width: "100%", height: "100%" }}>
-            {/* Glowing Horn */}
-            <polygon points="110,25 102,60 118,60" fill="#ffd600" filter="url(#glow)" />
-            <path d="M102,60 L110,25 L118,60" stroke="#ffffff" strokeWidth="2" fill="none" />
-            
-            {/* Magic Horn Sparkle */}
-            <circle cx="110" cy="22" r="8" fill="#ffffff" style={{ filter: "drop-shadow(0 0 10px #ffffff)" }} />
-            
-            {/* Head & Neck */}
-            <path
-              d="M 60,140 Q 70,80 110,60 Q 150,55 160,85 Q 165,105 140,115 Q 120,120 100,140 Z"
-              fill="#ffffff"
-            />
-            
-            {/* Muzzle */}
-            <path d="M 140,115 Q 160,110 155,95 Q 145,90 135,100 Z" fill="#ffecb3" />
-            <circle cx="148" cy="100" r="2" fill="#5d4037" />
-
-            {/* Eye */}
-            <circle cx="125" cy="80" r="4" fill="#1a237e" />
-            <circle cx="127" cy="78" r="1.5" fill="#ffffff" />
-
-            {/* Rainbow Mane */}
-            <path d="M 105,58 Q 80,45 65,70" fill="none" stroke="#ff0055" strokeWidth="8" strokeLinecap="round" />
-            <path d="M 95,68 Q 70,55 55,80" fill="none" stroke="#ffaa00" strokeWidth="8" strokeLinecap="round" />
-            <path d="M 85,78 Q 60,65 45,90" fill="none" stroke="#00e676" strokeWidth="8" strokeLinecap="round" />
-            <path d="M 75,88 Q 50,75 35,100" fill="none" stroke="#00b0ff" strokeWidth="8" strokeLinecap="round" />
-            <path d="M 65,98 Q 40,85 25,110" fill="none" stroke="#d500f9" strokeWidth="8" strokeLinecap="round" />
-
-            {/* Ear */}
-            <polygon points="90,60 100,40 105,62" fill="#ffffff" />
-            <polygon points="93,58 99,44 102,60" fill="#ffcdd2" />
-          </svg>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/magical_unicorn.jpg"
+            alt="Magical AI Unicorn"
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
         </div>
 
       </div>
