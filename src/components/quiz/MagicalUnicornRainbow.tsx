@@ -75,13 +75,13 @@ export default function MagicalUnicornRainbow() {
             d="M 50 400 Q 500 80 950 400"
             fill="none"
             stroke="url(#rainbowGrad)"
-            strokeWidth="32"
+            strokeWidth="34"
             strokeLinecap="round"
             filter="url(#glow)"
             style={{
               strokeDasharray: 1400,
               strokeDashoffset: 1400,
-              animation: "drawRainbow 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.3s",
+              animation: "drawRainbow 5.5s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.2s",
             }}
           />
         </svg>
@@ -114,7 +114,7 @@ export default function MagicalUnicornRainbow() {
             left: "0%",
             width: "160px",
             height: "160px",
-            animation: "glideUnicorn 3.2s cubic-bezier(0.4, 0, 0.2, 1) forwards 0.2s",
+            animation: "glideUnicorn 6.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards 0.2s",
             filter: "drop-shadow(0 0 25px rgba(255, 214, 0, 0.8))",
           }}
         >

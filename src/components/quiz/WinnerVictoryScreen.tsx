@@ -23,27 +23,23 @@ interface Props {
 export default function WinnerVictoryScreen({ studentName, gradeGroupSlug }: Props) {
   const router = useRouter();
   const [phase, setPhase] = useState<1 | 2>(1);
-  const [fadeOutScreen, setFadeOutScreen] = useState(false);
 
   useEffect(() => {
-    // Stage 1: "WINNER" shows for 1.6 seconds, then transition to Stage 2
+    // Clear student identity so a new QR scan starts fresh
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("quiz_student_name");
+      localStorage.removeItem("quiz_student_grade");
+    }
+
+    // Stage 1: "WINNER" shows for 1.6 seconds, then transitions permanently to Stage 2
     const timer1 = setTimeout(() => {
       setPhase(2);
     }, 1600);
 
-    // After 8.5 seconds total, fade out and return home
-    const timer2 = setTimeout(() => {
-      setFadeOutScreen(true);
-      setTimeout(() => {
-        router.push("/");
-      }, 800);
-    }, 8500);
-
     return () => {
       clearTimeout(timer1);
-      clearTimeout(timer2);
     };
-  }, [router]);
+  }, []);
 
   return (
     <div
@@ -58,8 +54,6 @@ export default function WinnerVictoryScreen({ studentName, gradeGroupSlug }: Pro
         justifyContent: "center",
         overflow: "hidden",
         fontFamily: "'Outfit', 'Montserrat', 'Inter', system-ui, sans-serif",
-        opacity: fadeOutScreen ? 0 : 1,
-        transition: "opacity 0.8s ease-in-out",
       }}
     >
       {/* Pink Pony Club (Chorus) Synth-Pop Audio Player */}
@@ -171,29 +165,6 @@ export default function WinnerVictoryScreen({ studentName, gradeGroupSlug }: Pro
           </h2>
         </div>
       )}
-
-      {/* Skip / Home button */}
-      <button
-        onClick={() => router.push("/")}
-        style={{
-          position: "fixed",
-          bottom: "2.5rem",
-          zIndex: 100001,
-          background: "rgba(255, 255, 255, 0.12)",
-          border: "1px solid rgba(255, 255, 255, 0.25)",
-          color: "rgba(255, 255, 255, 0.7)",
-          padding: "0.6rem 1.8rem",
-          borderRadius: "100px",
-          cursor: "pointer",
-          fontSize: "0.85rem",
-          fontWeight: 600,
-          backdropFilter: "blur(10px)",
-          letterSpacing: "1px",
-          transition: "all 0.3s ease",
-        }}
-      >
-        ← Home
-      </button>
 
       {/* Keyframe animations */}
       <style>{`
