@@ -1,7 +1,7 @@
 /**
  * Prisma seed file
  * Run with: npx prisma db seed
- * Pre-loads grade groups, 7th & 8th Grade questions, and 9th to 11th Grade questions for the English Festival quiz.
+ * Pre-loads grade groups and ALL questions (7-8, 9-11, Challenge B2) for the English Festival quiz.
  */
 
 import { PrismaClient } from "@prisma/client";
@@ -278,6 +278,127 @@ const questions9_11 = [
   },
 ];
 
+const questionsChallengeB2 = [
+  {
+    text: "Friend: We've been studying all afternoon. What should we do now?",
+    optionA: "Why don't we take a short break and grab a snack?",
+    optionB: "We studied yesterday because exams.",
+    optionC: "The library closes at six.",
+    optionD: "I have many subjects.",
+    correctOption: "A",
+    level: "B2",
+    type: "choice",
+    order: 1,
+  },
+  {
+    text: "Classmate: I thought we had to finish the project today.\n\nYou: ________",
+    optionA: "Actually, the teacher extended the deadline until Friday.",
+    optionB: "The project is difficult yesterday.",
+    optionC: "I like working in groups.",
+    optionD: "Friday is after Thursday.",
+    correctOption: "A",
+    level: "B2",
+    type: "choice",
+    order: 2,
+  },
+  {
+    text: "Friend: Do you think social media has more advantages or disadvantages?",
+    optionA: "I think it has both, but it depends on how people use it.",
+    optionB: "Social media is on my phone.",
+    optionC: "I downloaded an app yesterday.",
+    optionD: "My favorite color is blue.",
+    correctOption: "A",
+    level: "B2",
+    type: "choice",
+    order: 3,
+  },
+  {
+    text: "Your classmate looks stressed before a presentation.\n\nYou say:",
+    optionA: "If you'd like, we can practice your presentation together.",
+    optionB: "Presentations are difficult because English.",
+    optionC: "I presented last month.",
+    optionD: "Good luck yesterday.",
+    correctOption: "A",
+    level: "B2",
+    type: "choice",
+    order: 4,
+  },
+  {
+    text: "Friend: I passed my driving test!",
+    optionA: "That's fantastic! Congratulations! 🎉",
+    optionB: "I drive every morning.",
+    optionC: "My brother has a car.",
+    optionD: "The driving test was yesterday.",
+    correctOption: "A",
+    level: "B2",
+    type: "choice",
+    order: 5,
+  },
+  {
+    text: "Friend: I think homework should be banned.\n\nYou reply:",
+    optionA: "I see your point, but I think some homework helps us learn.",
+    optionB: "Homework is in my backpack.",
+    optionC: "I always finish homework yesterday.",
+    optionD: "Teachers give homework.",
+    correctOption: "A",
+    level: "B2",
+    type: "choice",
+    order: 6,
+  },
+  {
+    text: "Teacher: Remember to include reliable sources in your report.\n\nYou aren't sure what \"reliable sources\" means.",
+    optionA: "Could you explain what you mean by \"reliable sources\"?",
+    optionB: "I finished the report yesterday.",
+    optionC: "Sources are important because books.",
+    optionD: "Thank you for the report.",
+    correctOption: "A",
+    level: "B2",
+    type: "choice",
+    order: 7,
+  },
+  {
+    text: "Friend: What are you hoping to do after graduation?",
+    optionA: "I'm considering studying environmental engineering because I enjoy science.",
+    optionB: "I graduated next year.",
+    optionC: "University is difficult yesterday.",
+    optionD: "I like studying.",
+    correctOption: "A",
+    level: "B2",
+    type: "choice",
+    order: 8,
+  },
+  {
+    text: "Friend: I didn't make the soccer team, and I'm really disappointed.",
+    optionA: "I'm sorry to hear that. I'm sure another opportunity will come soon.",
+    optionB: "Soccer has eleven players.",
+    optionC: "I play soccer every weekend.",
+    optionD: "The coach is at school.",
+    correctOption: "A",
+    level: "B2",
+    type: "choice",
+    order: 9,
+  },
+  {
+    text: "Friend: Thanks for all your advice. It really helped.",
+    optionA: "Anytime! Let me know how everything goes.",
+    optionB: "Advice is important.",
+    optionC: "You're helping yesterday.",
+    optionD: "Goodbye because homework.",
+    correctOption: "A",
+    level: "B2",
+    type: "choice",
+    order: 10,
+  },
+  {
+    text: "Bonus Challenge: Your friend is nervous about giving an English presentation tomorrow. Write 2–3 sentences encouraging them and giving one piece of advice. (e.g. \"You'll do great! Just speak slowly and take a deep breath...\")",
+    type: "open",
+    level: "B2",
+    isBonus: true,
+    correctAnswer: "You'll do great! Just speak slowly and take a deep breath...",
+    order: 11,
+  },
+];
+
 async function main() {
   console.log("🌱 Seeding database...");
 
@@ -312,6 +433,17 @@ async function main() {
         });
       }
       console.log(`   📝 Added ${questions9_11.length} questions for 9th to 11th Grade!`);
+    } else if (group.slug === "challenge") {
+      await prisma.question.deleteMany({ where: { gradeGroupId: created.id } });
+      for (const q of questionsChallengeB2) {
+        await prisma.question.create({
+          data: {
+            ...q,
+            gradeGroupId: created.id,
+          },
+        });
+      }
+      console.log(`   📝 Added ${questionsChallengeB2.length} questions for Challenge B2!`);
     }
   }
 
