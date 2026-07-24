@@ -11,6 +11,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import FireworksCanvas from "@/components/quiz/FireworksCanvas";
 
 interface Question {
   id: string;
@@ -72,6 +73,7 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [bonusAnswers, setBonusAnswers] = useState<Record<string, string>>({});
   const [error, setError] = useState<string>("");
+  const [isPerfectScore, setIsPerfectScore] = useState<boolean>(false);
 
   // Separate questions by type
   const choiceQuestions = quizData?.questions.filter(q => q.type === "choice" && !q.isBonus) ?? [];
@@ -177,6 +179,10 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
 
       if (!res.ok) {
         throw new Error(resData.error || "Submission failed");
+      }
+
+      if (resData.isPerfect) {
+        setIsPerfectScore(true);
       }
 
       setState("success");
@@ -293,34 +299,90 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
   if (state === "success") {
     return (
       <div style={{ minHeight: "100vh", position: "relative", overflow: "hidden", background: "#0a0e1a" }}>
+        {isPerfectScore && <FireworksCanvas />}
         {renderBackground()}
         <div className="success-container" style={{ position: "relative", zIndex: 3 }}>
-          <div className="success-icon animate-fadeInUp">✓</div>
+          {isPerfectScore ? (
+            <>
+              <div className="animate-fadeInUp" style={{ fontSize: "5rem", marginBottom: "0.5rem", filter: "drop-shadow(0 0 20px rgba(255,214,0,0.8))" }}>
+                🏆
+              </div>
 
-          <h1 className="success-title animate-fadeInUp delay-100">
-            Quiz Submitted!
-          </h1>
+              <h1 className="success-title animate-fadeInUp delay-100" style={{ color: "#ffd600", textShadow: "0 0 25px rgba(255,214,0,0.6)" }}>
+                🎉 WINNER! 100% PERFECT SCORE! 🎉
+              </h1>
 
-          <div
-            className="glass animate-fadeInUp delay-200"
-            style={{ padding: "2rem", maxWidth: 480, width: "100%", textAlign: "center", background: "rgba(0,0,0,0.55)" }}
-          >
-            <p className="success-message" style={{ margin: 0 }}>
-              Thank you, <strong style={{ color: "#ffd600" }}>{studentName}</strong>! Your answers for{" "}
-              <strong style={{ color: "#90caf9" }}>{quizData?.name}</strong> have been submitted successfully.
-            </p>
-            <p
-              style={{
-                color: "rgba(255,255,255,0.5)",
-                fontSize: "0.85rem",
-                marginTop: "1rem",
-              }}
-            >
-              Thank you for participating in the English Festival!
-            </p>
-          </div>
+              <div
+                className="glass animate-fadeInUp delay-200"
+                style={{
+                  padding: "2.5rem 2rem",
+                  maxWidth: 520,
+                  width: "100%",
+                  textAlign: "center",
+                  background: "rgba(0,0,0,0.70)",
+                  border: "2px solid #ffd600",
+                  borderRadius: "24px",
+                  boxShadow: "0 0 40px rgba(255,214,0,0.3)",
+                }}
+              >
+                <div
+                  style={{
+                    display: "inline-block",
+                    background: "linear-gradient(135deg, #ffd600, #ff8f00)",
+                    color: "#000",
+                    fontWeight: 900,
+                    fontSize: "0.85rem",
+                    padding: "0.4rem 1.2rem",
+                    borderRadius: "100px",
+                    letterSpacing: "1px",
+                    textTransform: "uppercase",
+                    marginBottom: "1.25rem",
+                    boxShadow: "0 4px 15px rgba(255,214,0,0.4)",
+                  }}
+                >
+                  ⭐ PERFECT SCORE 100% ⭐
+                </div>
 
-          <div className="animate-fadeInUp delay-300" style={{ fontSize: "2.2rem" }}>
+                <p className="success-message" style={{ margin: "0 0 1rem 0", fontSize: "1.1rem", lineHeight: 1.6 }}>
+                  Congratulations, <strong style={{ color: "#ffd600" }}>{studentName}</strong>! You scored 100% on all multiple choice questions for{" "}
+                  <strong style={{ color: "#90caf9" }}>{quizData?.name}</strong>!
+                </p>
+
+                <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.9rem", margin: 0, lineHeight: 1.5 }}>
+                  ✍️ Your written bonus challenge responses have been submitted to your teacher for review.
+                </p>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="success-icon animate-fadeInUp">✓</div>
+
+              <h1 className="success-title animate-fadeInUp delay-100">
+                Quiz Submitted!
+              </h1>
+
+              <div
+                className="glass animate-fadeInUp delay-200"
+                style={{ padding: "2rem", maxWidth: 480, width: "100%", textAlign: "center", background: "rgba(0,0,0,0.55)" }}
+              >
+                <p className="success-message" style={{ margin: 0 }}>
+                  Thank you, <strong style={{ color: "#ffd600" }}>{studentName}</strong>! Your answers for{" "}
+                  <strong style={{ color: "#90caf9" }}>{quizData?.name}</strong> have been submitted successfully.
+                </p>
+                <p
+                  style={{
+                    color: "rgba(255,255,255,0.5)",
+                    fontSize: "0.85rem",
+                    marginTop: "1rem",
+                  }}
+                >
+                  Thank you for participating in the English Festival!
+                </p>
+              </div>
+            </>
+          )}
+
+          <div className="animate-fadeInUp delay-300" style={{ fontSize: "2.2rem", marginTop: "1rem" }}>
             {quizData?.emoji} 🕊️ 📚 🌍
           </div>
 

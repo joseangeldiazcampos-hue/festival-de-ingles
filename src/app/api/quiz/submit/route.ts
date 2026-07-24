@@ -114,7 +114,12 @@ export async function POST(req: NextRequest) {
       console.error("Failed to send quiz result email:", err);
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      isPerfect,
+      correct,
+      total,
+    });
   } catch (error) {
     console.error("Quiz submit error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

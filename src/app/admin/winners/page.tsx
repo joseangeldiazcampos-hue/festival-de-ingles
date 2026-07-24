@@ -1,16 +1,33 @@
 /**
  * Admin Winners Page — /admin/winners
- * Shows all students who scored 100% (Perfect Score) on any quiz.
+ * Shows all students who scored 100% (Perfect Score) on choice questions,
+ * and allows teachers to review their written bonus responses.
  */
 
 import { prisma } from "@/lib/db";
+import BonusReviewTable from "@/components/admin/BonusReviewTable";
 
 export default async function WinnersPage() {
-  const winners = await prisma.attempt.findMany({
-    where: { isPerfect: true },
-    orderBy: { createdAt: "desc" },
-    include: { gradeGroup: { select: { name: true, emoji: true, slug: true } } },
-  });
+  const [winners, questions] = await Promise.all([
+    prisma.attempt.findMany({
+      where: { isPerfect: true },
+      orderBy: { createdAt: "desc" },
+      include: { gradeGroup: { select: { name: true, emoji: true, slug: true } } },
+    }),
+    prisma.question.findMany({
+      select: { id: true, text: true },
+    }),
+  ]);
+
+  const questionsMap: Record<string, string> = {};
+  for (const q of questions) {
+    questionsMap[q.id] = q.text;
+  }
+
+  const formattedWinners = winners.map((w) => ({
+    ...w,
+    createdAt: w.createdAt.toISOString(),
+  }));
 
   return (
     <div>
@@ -35,7 +52,7 @@ export default async function WinnersPage() {
           </span>
         </div>
         <p style={{ color: "rgba(255,255,255,0.4)", marginTop: "0.35rem", fontSize: "0.9rem" }}>
-          Students who answered all questions correctly
+          Students who answered all multiple-choice questions correctly. Click &quot;✍️ Ver Respuesta&quot; to review their written bonus responses.
         </p>
       </div>
 
@@ -46,95 +63,11 @@ export default async function WinnersPage() {
             <div style={{ fontSize: "3.5rem", marginBottom: "1rem" }}>⭐</div>
             <h3 style={{ color: "white", fontWeight: 700, margin: "0 0 0.5rem" }}>No Winners Yet</h3>
             <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.9rem", margin: 0 }}>
-              Students who achieve 100% accuracy on any quiz will automatically appear here!
+              Students who achieve 100% accuracy on choice questions will automatically appear here with fireworks!
             </p>
           </div>
         ) : (
-          <div className="table-wrapper">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Student Name</th>
-                  <th>Grade</th>
-                  <th>Quiz Level</th>
-                  <th>Date</th>
-                  <th>Time</th>
-                  <th>Score</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {winners.map((w) => {
-                  const date = new Date(w.createdAt);
-                  return (
-                    <tr key={w.id}>
-                      <td>
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                          <span style={{ fontSize: "1.1rem" }}>👤</span>
-                          <span style={{ fontWeight: 700, color: "#ffd600", fontSize: "0.95rem" }}>
-                            {w.studentName || "Anonymous Student"}
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        <span style={{ fontWeight: 600, color: "rgba(255,255,255,0.8)" }}>
-                          {w.studentGrade || "-"}
-                        </span>
-                      </td>
-                      <td>
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                          <span style={{ fontSize: "1.3rem" }}>{w.gradeGroup?.emoji}</span>
-                          <span style={{ fontWeight: 700, color: "white" }}>{w.gradeGroup?.name}</span>
-                        </div>
-                      </td>
-                      <td style={{ color: "rgba(255,255,255,0.7)", fontWeight: 500 }}>
-                        {date.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" })}
-                      </td>
-                      <td style={{ color: "rgba(255,255,255,0.7)", fontWeight: 500 }}>
-                        {date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })}
-                      </td>
-                      <td>
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                          <span style={{ fontWeight: 800, color: "#ffd600" }}>{w.correct}/{w.total}</span>
-                          <span
-                            style={{
-                              fontSize: "0.75rem",
-                              background: "rgba(255, 214, 0, 0.15)",
-                              border: "1px solid rgba(255, 214, 0, 0.3)",
-                              borderRadius: "6px",
-                              padding: "0.15rem 0.5rem",
-                              color: "#ffd600",
-                              fontWeight: 700,
-                            }}
-                          >
-                            100%
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        <span
-                          style={{
-                            background: "linear-gradient(135deg, rgba(255, 214, 0, 0.2), rgba(255, 143, 0, 0.2))",
-                            border: "1px solid rgba(255, 214, 0, 0.4)",
-                            color: "#ffd600",
-                            fontWeight: 700,
-                            fontSize: "0.8rem",
-                            padding: "0.25rem 0.75rem",
-                            borderRadius: "100px",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "0.3rem",
-                          }}
-                        >
-                          🏆 WINNER
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <BonusReviewTable attempts={formattedWinners} questionsMap={questionsMap} />
         )}
       </div>
     </div>
