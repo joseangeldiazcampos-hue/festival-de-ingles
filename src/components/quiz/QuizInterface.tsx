@@ -229,8 +229,8 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
     }
   };
 
-  // Floating decorative icons
-  const floatingIcons = ["📚", "🕊️", "🌍", "✏️", "🤝"];
+  // Floating English Culture Emojis
+  const floatingIcons = ["🇬🇧", "🇺🇸", "☕", "🚌", "👑", "📚", "💬", "🎧"];
 
   // Shared Background Layout Wrapper
   const renderBackground = () => (
@@ -558,15 +558,15 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
               marginBottom: "0.5rem",
             }}
           >
-            <span style={{ fontSize: "0.8rem", color: "rgba(224,242,254,0.85)", fontWeight: 600 }}>
+            <span style={{ fontSize: "0.85rem", color: "rgba(253, 242, 248, 0.9)", fontWeight: 700 }}>
               Question {currentIndex + 1} of {totalQuestions}
             </span>
-            <span style={{ fontSize: "0.8rem", color: "#4ade80", fontWeight: 700 }}>
+            <span style={{ fontSize: "0.85rem", color: "#f472b6", fontWeight: 800 }}>
               {Math.round(progress)}%
             </span>
           </div>
-          <div className="progress-bar-track" style={{ background: "rgba(0,0,0,0.4)" }}>
-            <div className="progress-bar-fill" style={{ width: `${progress}%`, background: "linear-gradient(90deg, #38bdf8, #4ade80)" }} />
+          <div className="progress-bar-track" style={{ background: "rgba(0,0,0,0.5)", borderRadius: "100px", padding: "2px" }}>
+            <div className="progress-bar-fill" style={{ width: `${progress}%`, background: "linear-gradient(90deg, #f472b6, #38bdf8)", borderRadius: "100px" }} />
           </div>
         </div>
 
@@ -577,25 +577,26 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
           style={{
             position: "relative",
             overflow: "hidden",
-            background: "rgba(4, 13, 26, 0.65)",
+            background: "rgba(6, 31, 23, 0.75)",
             backdropFilter: "blur(24px)",
-            border: "1px solid rgba(56, 189, 248, 0.25)",
-            borderRadius: "20px",
+            border: "2px solid rgba(244, 114, 182, 0.4)",
+            borderRadius: "24px",
+            boxShadow: "0 10px 40px rgba(0, 0, 0, 0.5), 0 0 25px rgba(244, 114, 182, 0.2)",
           }}
         >
           {/* Level badge watermark */}
           <div
             style={{
               position: "absolute",
-              right: "12px",
-              top: "12px",
+              right: "14px",
+              top: "14px",
               fontSize: "0.75rem",
               fontWeight: 800,
-              padding: "0.25rem 0.75rem",
-              borderRadius: "8px",
-              background: "rgba(56, 189, 248, 0.15)",
-              color: "#38bdf8",
-              border: "1px solid rgba(56, 189, 248, 0.4)",
+              padding: "0.3rem 0.85rem",
+              borderRadius: "100px",
+              background: "rgba(244, 114, 182, 0.2)",
+              color: "#f472b6",
+              border: "1px solid rgba(244, 114, 182, 0.5)",
               letterSpacing: "1px",
             }}
           >
@@ -606,13 +607,13 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
             <span>
               {isCurrentBonus ? "⭐ Bonus Question" : `Question ${currentIndex + 1}`}
             </span>
-            <span style={{ fontSize: "0.8rem", opacity: 0.6 }}>• {quizData.name}</span>
+            <span style={{ fontSize: "0.8rem", opacity: 0.7, color: "#7dd3fc" }}>• {quizData.name}</span>
           </div>
-          <p className="question-text">{currentQuestion.text}</p>
+          <p className="question-text" style={{ color: "#ffffff", fontWeight: 700 }}>{currentQuestion.text}</p>
 
           {/* Bonus question hint */}
           {isCurrentBonus && (
-            <p style={{ color: "#4ade80", fontSize: "0.8rem", margin: "0.5rem 0 0 0", fontStyle: "italic" }}>
+            <p style={{ color: "#f472b6", fontSize: "0.85rem", margin: "0.5rem 0 0 0", fontStyle: "italic", fontWeight: 700 }}>
               ✍️ Write your answer below
             </p>
           )}
@@ -636,19 +637,20 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
                   onClick={() => handleSelect(optObj.key)}
                   style={{
                     background: isSelected
-                      ? "linear-gradient(135deg, rgba(56, 189, 248, 0.4), rgba(74, 222, 128, 0.4))"
-                      : "rgba(56, 189, 248, 0.06)",
+                      ? "linear-gradient(135deg, rgba(244, 114, 182, 0.5), rgba(56, 189, 248, 0.5))"
+                      : "rgba(6, 31, 23, 0.55)",
                     backdropFilter: "blur(16px)",
                     border: isSelected
-                      ? "2px solid #4ade80"
-                      : "1px solid rgba(56, 189, 248, 0.25)",
+                      ? "2px solid #f472b6"
+                      : "1px solid rgba(56, 189, 248, 0.3)",
                     boxShadow: isSelected
-                      ? "0 0 20px rgba(74, 222, 128, 0.4)"
+                      ? "0 0 25px rgba(244, 114, 182, 0.5)"
                       : "none",
+                    borderRadius: "16px",
                   }}
                 >
-                  <span className="option-letter">{letterLabel}</span>
-                  <span style={{ color: "white", fontWeight: 500 }}>{optObj.text}</span>
+                  <span className="option-letter" style={{ background: isSelected ? "#f472b6" : "rgba(56,189,248,0.2)", color: isSelected ? "white" : "#38bdf8" }}>{letterLabel}</span>
+                  <span style={{ color: "white", fontWeight: 600 }}>{optObj.text}</span>
                 </button>
               );
             })}
@@ -668,9 +670,9 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
                 padding: "1rem 1.25rem",
                 borderRadius: "16px",
                 border: bonusAnswers[currentQuestion.id]?.trim()
-                  ? "2px solid #4ade80"
-                  : "1px solid rgba(56,189,248,0.25)",
-                background: "rgba(4, 13, 26, 0.65)",
+                  ? "2px solid #f472b6"
+                  : "1px solid rgba(56, 189, 248, 0.3)",
+                background: "rgba(6, 31, 23, 0.65)",
                 backdropFilter: "blur(16px)",
                 color: "white",
                 fontSize: "1rem",
@@ -681,11 +683,11 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
                 boxSizing: "border-box",
               }}
               onFocus={(e) => {
-                e.target.style.borderColor = "#4ade80";
+                e.target.style.borderColor = "#f472b6";
               }}
               onBlur={(e) => {
                 if (!bonusAnswers[currentQuestion.id]?.trim()) {
-                  e.target.style.borderColor = "rgba(56,189,248,0.25)";
+                  e.target.style.borderColor = "rgba(56, 189, 248, 0.3)";
                 }
               }}
             />

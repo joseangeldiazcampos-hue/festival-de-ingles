@@ -38,12 +38,14 @@ const LEVEL_COLORS: Record<string, string> = {
 };
 
 const decorativeIcons = [
-  { emoji: "📚", delay: "0s",   top: "10%", left: "5%"  },
-  { emoji: "🕊️", delay: "0.5s", top: "15%", right: "8%" },
-  { emoji: "🌍", delay: "1s",   bottom: "20%", left: "4%"  },
-  { emoji: "💬", delay: "1.5s", bottom: "15%", right: "6%" },
-  { emoji: "✏️", delay: "2s",   top: "40%",  left: "2%"  },
-  { emoji: "🤝", delay: "2.5s", top: "35%",  right: "3%" },
+  { emoji: "🇬🇧", delay: "0s",   top: "8%",  left: "5%"  },
+  { emoji: "🇺🇸", delay: "0.5s", top: "12%", right: "6%" },
+  { emoji: "☕", delay: "1s",   bottom: "22%", left: "4%"  },
+  { emoji: "🚌", delay: "1.5s", bottom: "15%", right: "6%" },
+  { emoji: "👑", delay: "2s",   top: "40%",  left: "3%"  },
+  { emoji: "📚", delay: "2.5s", top: "35%",  right: "4%" },
+  { emoji: "💬", delay: "3s",   bottom: "8%", left: "45%" },
+  { emoji: "🎧", delay: "0.8s", top: "5%",   left: "48%" },
 ];
 
 export default function QuizLanding({ name, slug, grades, levels, emoji, description, questionCount }: Props) {
@@ -207,25 +209,26 @@ export default function QuizLanding({ name, slug, grades, levels, emoji, descrip
         <div
           className="animate-fadeInUp delay-500"
           style={{
-            padding: "1.5rem 2rem",
+            padding: "1.75rem 2.2rem",
             textAlign: "center",
             maxWidth: 480,
             width: "100%",
-            background: "rgba(0,0,0,0.55)",
-            backdropFilter: "blur(20px)",
-            border: "1px solid rgba(255,255,255,0.15)",
-            borderRadius: "20px",
+            background: "rgba(6, 31, 23, 0.75)",
+            backdropFilter: "blur(24px)",
+            border: "2px solid rgba(244, 114, 182, 0.45)",
+            borderRadius: "24px",
+            boxShadow: "0 10px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(244, 114, 182, 0.25)",
           }}
         >
           {description && (
-            <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.85rem", marginBottom: "1.25rem", lineHeight: 1.6 }}>
+            <p style={{ color: "#7dd3fc", fontSize: "0.9rem", marginBottom: "1.25rem", lineHeight: 1.6, fontWeight: 600 }}>
               {description}
             </p>
           )}
 
-          <p style={{ color: "rgba(255,255,255,0.85)", fontSize: "0.95rem", lineHeight: 1.7, margin: "0 0 1.25rem 0" }}>
+          <p style={{ color: "rgba(253, 242, 248, 0.9)", fontSize: "0.95rem", lineHeight: 1.7, margin: "0 0 1.25rem 0" }}>
             Read the text carefully, then answer all{" "}
-            <strong style={{ color: "white" }}>{questionCount} questions</strong>.
+            <strong style={{ color: "#f472b6" }}>{questionCount} questions</strong>.
           </p>
 
           {/* Student Name Input */}
@@ -234,8 +237,8 @@ export default function QuizLanding({ name, slug, grades, levels, emoji, descrip
               style={{
                 display: "block",
                 fontSize: "0.85rem",
-                fontWeight: 600,
-                color: "#ffd600",
+                fontWeight: 700,
+                color: "#f472b6",
                 marginBottom: "0.4rem",
                 letterSpacing: "0.5px",
               }}
@@ -257,8 +260,11 @@ export default function QuizLanding({ name, slug, grades, levels, emoji, descrip
               style={{
                 fontSize: "1.05rem",
                 padding: "0.85rem 1.1rem",
-                background: "rgba(255,255,255,0.10)",
-                border: nameError ? "1px solid #ef5350" : "1px solid rgba(255,255,255,0.25)",
+                background: "rgba(255,255,255,0.08)",
+                border: nameError ? "1px solid #ef5350" : "1px solid rgba(56, 189, 248, 0.4)",
+                borderRadius: "12px",
+                color: "white",
+                outline: "none",
               }}
             />
             {nameError && (
@@ -274,8 +280,8 @@ export default function QuizLanding({ name, slug, grades, levels, emoji, descrip
               style={{
                 display: "block",
                 fontSize: "0.85rem",
-                fontWeight: 600,
-                color: "#4ade80",
+                fontWeight: 700,
+                color: "#38bdf8",
                 marginBottom: "0.5rem",
                 letterSpacing: "0.5px",
               }}
@@ -296,19 +302,19 @@ export default function QuizLanding({ name, slug, grades, levels, emoji, descrip
                     padding: "0.75rem 1rem",
                     borderRadius: "12px",
                     border: selectedGrade === grade
-                      ? "2px solid #4ade80"
+                      ? "2px solid #f472b6"
                       : gradeError
                       ? "2px solid #ef5350"
-                      : "1px solid rgba(56,189,248,0.25)",
+                      : "1px solid rgba(56,189,248,0.3)",
                     background: selectedGrade === grade
-                      ? "linear-gradient(135deg, rgba(56, 189, 248, 0.4), rgba(74, 222, 128, 0.4))"
-                      : "rgba(56, 189, 248, 0.08)",
-                    color: selectedGrade === grade ? "#ffffff" : "rgba(224,242,254,0.85)",
+                      ? "linear-gradient(135deg, rgba(244, 114, 182, 0.45), rgba(56, 189, 248, 0.45))"
+                      : "rgba(255,255,255,0.06)",
+                    color: selectedGrade === grade ? "#ffffff" : "rgba(253,242,248,0.85)",
                     cursor: "pointer",
                     fontSize: "0.9rem",
-                    fontWeight: selectedGrade === grade ? 700 : 500,
+                    fontWeight: selectedGrade === grade ? 800 : 500,
                     transition: "all 0.2s ease",
-                    boxShadow: selectedGrade === grade ? "0 0 20px rgba(74,222,128,0.5)" : "none",
+                    boxShadow: selectedGrade === grade ? "0 0 20px rgba(244,114,182,0.5)" : "none",
                   }}
                 >
                   {GRADE_LABELS[grade] || `${grade}th Grade`}
@@ -327,7 +333,18 @@ export default function QuizLanding({ name, slug, grades, levels, emoji, descrip
         <button
           className="btn-start animate-fadeInUp delay-500"
           onClick={handleStart}
-          style={{ fontSize: "1.1rem", padding: "1.1rem 3rem" }}
+          style={{
+            fontSize: "1.15rem",
+            padding: "1.1rem 3.5rem",
+            background: "linear-gradient(135deg, #f472b6, #38bdf8)",
+            border: "none",
+            borderRadius: "100px",
+            color: "white",
+            fontWeight: 800,
+            cursor: "pointer",
+            boxShadow: "0 0 30px rgba(244, 114, 182, 0.6)",
+            marginTop: "1.5rem",
+          }}
         >
           Start Quiz →
         </button>

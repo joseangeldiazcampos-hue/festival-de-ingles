@@ -12,7 +12,8 @@ const gradeGroups = [
     emoji: "📚",
     levels: "A1 · A2",
     description: "English Speed Challenge!",
-    gradient: "linear-gradient(135deg, #0284c7, #38bdf8)",
+    gradient: "linear-gradient(135deg, #f472b6, #ec4899)",
+    border: "2px solid rgba(244, 114, 182, 0.5)",
   },
   {
     name: "9th to 11th Grade",
@@ -20,7 +21,8 @@ const gradeGroups = [
     emoji: "🎯",
     levels: "A2 · B1",
     description: "English Speed Challenge!",
-    gradient: "linear-gradient(135deg, #10b981, #4ade80)",
+    gradient: "linear-gradient(135deg, #38bdf8, #0284c7)",
+    border: "2px solid rgba(56, 189, 248, 0.5)",
   },
   {
     name: "Challenge B2",
@@ -28,32 +30,99 @@ const gradeGroups = [
     emoji: "🏆",
     levels: "B2",
     description: "English Communication Challenge!",
-    gradient: "linear-gradient(135deg, #00b0ff, #2dd4bf)",
+    gradient: "linear-gradient(135deg, #f0abfc, #38bdf8)",
+    border: "2px solid rgba(240, 171, 252, 0.6)",
   },
+];
+
+const englishIcons = [
+  { emoji: "🇬🇧", top: "10%", left: "5%" },
+  { emoji: "🇺🇸", top: "15%", right: "8%" },
+  { emoji: "☕", top: "70%", left: "6%" },
+  { emoji: "🚌", top: "80%", right: "10%" },
+  { emoji: "👑", top: "35%", left: "4%" },
+  { emoji: "📚", top: "45%", right: "5%" },
+  { emoji: "💬", top: "85%", left: "45%" },
+  { emoji: "🎧", top: "5%", left: "48%" },
 ];
 
 export default function HomePage() {
   return (
-    <div className="bg-animated" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div style={{ textAlign: "center", padding: "2rem", position: "relative", zIndex: 1, maxWidth: 600, width: "100%" }}>
-        <div style={{ fontSize: "4rem", marginBottom: "1rem" }} className="animate-fadeInUp">🕊️</div>
+    <div className="bg-animated" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+      
+      {/* Floating English Culture & Language Emojis */}
+      {englishIcons.map((icon, i) => (
+        <div
+          key={i}
+          style={{
+            position: "fixed",
+            fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)",
+            opacity: 0.35,
+            top: icon.top,
+            left: icon.left,
+            right: icon.right,
+            animation: `flag-float ${4 + i * 0.6}s ease-in-out infinite alternate`,
+            animationDelay: `${i * 0.3}s`,
+            zIndex: 1,
+            pointerEvents: "none",
+            filter: "drop-shadow(0 0 12px rgba(244, 114, 182, 0.4))",
+          }}
+        >
+          {icon.emoji}
+        </div>
+      ))}
+
+      <div style={{ textAlign: "center", padding: "2rem", position: "relative", zIndex: 3, maxWidth: 600, width: "100%" }}>
+        
+        {/* Header Badge */}
+        <div
+          className="animate-fadeInUp"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.6rem",
+            background: "rgba(244, 114, 182, 0.18)",
+            border: "1px solid rgba(244, 114, 182, 0.4)",
+            borderRadius: "100px",
+            padding: "0.45rem 1.4rem",
+            fontSize: "0.85rem",
+            color: "#f472b6",
+            fontWeight: 800,
+            letterSpacing: "1.5px",
+            textTransform: "uppercase",
+            backdropFilter: "blur(12px)",
+            marginBottom: "1rem",
+            boxShadow: "0 0 20px rgba(244, 114, 182, 0.3)",
+          }}
+        >
+          <span>🇬🇧 🇺🇸</span>
+          <span>English Festival 2026</span>
+        </div>
+
         <h1
           className="animate-fadeInUp delay-100"
-          style={{ fontSize: "2rem", fontWeight: 900, color: "white", marginBottom: "0.5rem" }}
+          style={{
+            fontSize: "clamp(2.2rem, 5vw, 3.2rem)",
+            fontWeight: 900,
+            color: "#ffffff",
+            marginBottom: "0.5rem",
+            textShadow: "0 0 20px rgba(56, 189, 248, 0.6), 0 0 40px rgba(244, 114, 182, 0.5)",
+          }}
         >
           Violence Is Never The Answer
         </h1>
+
         <p
           className="animate-fadeInUp delay-200"
-          style={{ color: "rgba(255,255,255,0.6)", marginBottom: "2.5rem" }}
+          style={{ color: "rgba(253, 242, 248, 0.9)", fontSize: "1.05rem", marginBottom: "2.5rem", fontWeight: 500 }}
         >
-          English Festival Quiz Platform — Select your level
+          💬 English Speed & Communication Challenge — Select your level
         </p>
 
         {/* Grade group cards */}
         <div
           className="animate-fadeInUp delay-300"
-          style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "2rem" }}
+          style={{ display: "flex", flexDirection: "column", gap: "1.2rem", marginBottom: "2.5rem" }}
         >
           {gradeGroups.map((group) => (
             <Link
@@ -62,36 +131,38 @@ export default function HomePage() {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "1rem",
-                padding: "1.25rem 1.5rem",
-                borderRadius: "16px",
-                background: "rgba(0,0,0,0.45)",
-                backdropFilter: "blur(16px)",
-                border: "1px solid rgba(255,255,255,0.12)",
+                gap: "1.2rem",
+                padding: "1.35rem 1.6rem",
+                borderRadius: "20px",
+                background: "rgba(6, 31, 23, 0.65)",
+                backdropFilter: "blur(20px)",
+                border: group.border,
                 textDecoration: "none",
                 transition: "all 0.3s ease",
                 cursor: "pointer",
+                boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4)",
               }}
             >
-              <span style={{ fontSize: "2.5rem" }}>{group.emoji}</span>
+              <span style={{ fontSize: "2.8rem", filter: "drop-shadow(0 0 10px rgba(255,255,255,0.4))" }}>{group.emoji}</span>
               <div style={{ flex: 1, textAlign: "left" }}>
-                <div style={{ color: "white", fontSize: "1.15rem", fontWeight: 700, marginBottom: "0.15rem" }}>
+                <div style={{ color: "white", fontSize: "1.2rem", fontWeight: 800, marginBottom: "0.2rem" }}>
                   {group.name}
                 </div>
-                <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "0.85rem" }}>
+                <div style={{ color: "#7dd3fc", fontSize: "0.9rem", fontWeight: 600 }}>
                   {group.description}
                 </div>
               </div>
               <span
                 style={{
                   background: group.gradient,
-                  padding: "0.35rem 0.85rem",
+                  padding: "0.45rem 1rem",
                   borderRadius: "100px",
                   color: "white",
-                  fontSize: "0.8rem",
-                  fontWeight: 700,
+                  fontSize: "0.85rem",
+                  fontWeight: 800,
                   letterSpacing: "0.5px",
                   whiteSpace: "nowrap",
+                  boxShadow: "0 0 15px rgba(244, 114, 182, 0.4)",
                 }}
               >
                 {group.levels}
@@ -105,12 +176,14 @@ export default function HomePage() {
           className="animate-fadeInUp delay-400"
           style={{
             display: "inline-block",
-            color: "rgba(255,255,255,0.35)",
-            fontSize: "0.8rem",
+            color: "rgba(244, 114, 182, 0.85)",
+            fontSize: "0.85rem",
+            fontWeight: 700,
             textDecoration: "none",
+            letterSpacing: "1px",
           }}
         >
-          Admin Panel →
+          🔒 Admin Teacher Panel →
         </Link>
       </div>
     </div>
