@@ -22,7 +22,7 @@ interface Props {
 
 export default function WinnerVictoryScreen({ studentName, gradeGroupSlug }: Props) {
   const router = useRouter();
-  const [phase, setPhase] = useState<1 | 2 | 3>(1);
+  const [phase, setPhase] = useState<1 | 2 | 3 | 4>(1);
 
   useEffect(() => {
     // Clear student identity so a new QR scan starts fresh
@@ -31,19 +31,25 @@ export default function WinnerVictoryScreen({ studentName, gradeGroupSlug }: Pro
       localStorage.removeItem("quiz_student_grade");
     }
 
-    // Stage 1: "🏆 WINNER" shows for 2.2 seconds
+    // Paso 1: "🏆 WINNER" (0s - 1.8s)
     const timer1 = setTimeout(() => {
       setPhase(2);
-    }, 2200);
+    }, 1800);
 
-    // Stage 2: "GREAT JOB! + Student Name" shows for 3 seconds, then transitions to Stage 3
+    // Paso 2: Solo Nombre del Estudiante (1.8s - 3.6s)
     const timer2 = setTimeout(() => {
       setPhase(3);
-    }, 5500);
+    }, 3600);
+
+    // Paso 3: Solo "⭐ GREAT JOB! ⭐" (3.6s - 5.4s)
+    const timer3 = setTimeout(() => {
+      setPhase(4);
+    }, 5400);
 
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
+      clearTimeout(timer3);
     };
   }, []);
 
@@ -71,7 +77,7 @@ export default function WinnerVictoryScreen({ studentName, gradeGroupSlug }: Pro
       {/* Continuous Fireworks in background */}
       <FireworksCanvas />
 
-      {/* STAGE 1: "🏆 WINNER" */}
+      {/* PASO 1: Solo "🏆 WINNER" */}
       {phase === 1 && (
         <div
           key="phase1"
@@ -81,7 +87,7 @@ export default function WinnerVictoryScreen({ studentName, gradeGroupSlug }: Pro
             alignItems: "center",
             justifyContent: "center",
             zIndex: 100000,
-            animation: "victoryZoomIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards",
+            animation: "victoryZoomIn 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards",
           }}
         >
           <div
@@ -116,7 +122,7 @@ export default function WinnerVictoryScreen({ studentName, gradeGroupSlug }: Pro
         </div>
       )}
 
-      {/* STAGE 2: Student Name + "GREAT JOB!" */}
+      {/* PASO 2: Solo Nombre del Estudiante */}
       {phase === 2 && (
         <div
           key="phase2"
@@ -128,15 +134,15 @@ export default function WinnerVictoryScreen({ studentName, gradeGroupSlug }: Pro
             zIndex: 100000,
             textAlign: "center",
             padding: "0 1.5rem",
+            animation: "victoryNamePop 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards",
           }}
         >
-          {/* Student Name */}
           <h1
             style={{
-              fontSize: "clamp(2.8rem, 8vw, 6.5rem)",
+              fontSize: "clamp(3rem, 9vw, 7rem)",
               fontWeight: 900,
               color: "#ffffff",
-              margin: "0 0 0.8rem 0",
+              margin: 0,
               letterSpacing: "3px",
               textShadow: `
                 0 0 20px #ffffff,
@@ -144,17 +150,32 @@ export default function WinnerVictoryScreen({ studentName, gradeGroupSlug }: Pro
                 0 0 80px #38bdf8,
                 0 0 120px rgba(244, 114, 182, 0.8)
               `,
-              animation: "victoryNamePop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards",
               lineHeight: 1.1,
             }}
           >
             👤 {studentName}
           </h1>
+        </div>
+      )}
 
-          {/* "GREAT JOB!" */}
-          <h2
+      {/* PASO 3: Solo "⭐ GREAT JOB! ⭐" */}
+      {phase === 3 && (
+        <div
+          key="phase3"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 100000,
+            textAlign: "center",
+            padding: "0 1.5rem",
+            animation: "victorySubText 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards",
+          }}
+        >
+          <h1
             style={{
-              fontSize: "clamp(2.2rem, 6vw, 4.5rem)",
+              fontSize: "clamp(3rem, 9vw, 6.5rem)",
               fontWeight: 900,
               color: "#ffd600",
               margin: 0,
@@ -162,20 +183,20 @@ export default function WinnerVictoryScreen({ studentName, gradeGroupSlug }: Pro
               textShadow: `
                 0 0 20px #ffd600,
                 0 0 40px #ff8f00,
-                0 0 65px rgba(255, 214, 0, 0.8)
+                0 0 70px rgba(255, 214, 0, 0.9)
               `,
-              animation: "victorySubText 0.8s ease-out 0.3s both",
+              lineHeight: 1.1,
             }}
           >
             ⭐ GREAT JOB! ⭐
-          </h2>
+          </h1>
         </div>
       )}
 
-      {/* STAGE 3: Final Victory Card */}
-      {phase === 3 && (
+      {/* PASO 4: Todo Junto en Tarjeta Final */}
+      {phase === 4 && (
         <div
-          key="phase3"
+          key="phase4"
           style={{
             display: "flex",
             flexDirection: "column",
@@ -195,7 +216,7 @@ export default function WinnerVictoryScreen({ studentName, gradeGroupSlug }: Pro
           }}
         >
           <div style={{ fontSize: "3.5rem", marginBottom: "0.5rem" }}>🏆 ⭐</div>
-          <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "#ffffff", margin: "0 0 0.4rem 0" }}>
+          <h2 style={{ fontSize: "2.2rem", fontWeight: 900, color: "#ffffff", margin: "0 0 0.4rem 0" }}>
             {studentName}
           </h2>
           <div
@@ -204,16 +225,16 @@ export default function WinnerVictoryScreen({ studentName, gradeGroupSlug }: Pro
               color: "white",
               padding: "0.45rem 1.4rem",
               borderRadius: "100px",
-              fontSize: "0.9rem",
+              fontSize: "0.95rem",
               fontWeight: 800,
               letterSpacing: "1px",
               marginBottom: "1rem",
               boxShadow: "0 0 20px rgba(244, 114, 182, 0.5)",
             }}
           >
-            GREAT JOB! — 100% PERFECT SCORE ⭐
+            ⭐ GREAT JOB! ⭐ — 100% PERFECT SCORE
           </div>
-          <p style={{ color: "rgba(253, 242, 248, 0.85)", fontSize: "0.85rem", fontStyle: "italic", margin: 0 }}>
+          <p style={{ color: "rgba(253, 242, 248, 0.85)", fontSize: "0.9rem", fontStyle: "italic", margin: 0, fontWeight: 600 }}>
             🕊️ Violence Is Never The Answer — English Festival 2026
           </p>
         </div>
