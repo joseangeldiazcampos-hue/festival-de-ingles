@@ -100,6 +100,16 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
 
   // Retrieve student name and grade on mount
   useEffect(() => {
+    // Check if URL requests instant winner preview (e.g. ?preview=winner)
+    const isPreview = searchParams.get("preview") === "winner" || searchParams.get("winner") === "true";
+    if (isPreview) {
+      setStudentName("Ganador de Prueba ⭐");
+      setStudentGrade("10");
+      setIsPerfectScore(true);
+      setState("success");
+      return;
+    }
+
     if (typeof window !== "undefined") {
       const isCompleted = localStorage.getItem(`completed_${gradeGroupSlug}`);
       if (isCompleted === "true") {
