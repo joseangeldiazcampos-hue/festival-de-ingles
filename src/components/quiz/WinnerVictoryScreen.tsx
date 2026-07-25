@@ -22,7 +22,7 @@ interface Props {
 
 export default function WinnerVictoryScreen({ studentName, gradeGroupSlug }: Props) {
   const router = useRouter();
-  const [phase, setPhase] = useState<1 | 2>(1);
+  const [phase, setPhase] = useState<1 | 2 | 3>(1);
 
   useEffect(() => {
     // Clear student identity so a new QR scan starts fresh
@@ -31,13 +31,19 @@ export default function WinnerVictoryScreen({ studentName, gradeGroupSlug }: Pro
       localStorage.removeItem("quiz_student_grade");
     }
 
-    // Stage 1: "WINNER" shows for 1.6 seconds, then transitions permanently to Stage 2
+    // Stage 1: "🏆 WINNER" shows for 2.2 seconds
     const timer1 = setTimeout(() => {
       setPhase(2);
-    }, 1600);
+    }, 2200);
+
+    // Stage 2: "GREAT JOB! + Student Name" shows for 3 seconds, then transitions to Stage 3
+    const timer2 = setTimeout(() => {
+      setPhase(3);
+    }, 5500);
 
     return () => {
       clearTimeout(timer1);
+      clearTimeout(timer2);
     };
   }, []);
 
@@ -59,8 +65,8 @@ export default function WinnerVictoryScreen({ studentName, gradeGroupSlug }: Pro
       {/* Pink Pony Club (Chorus) Synth-Pop Audio Player */}
       <PinkPonyClubPlayer />
 
-      {/* Stage 2: Magical Unicorn & Rainbow Illustration in background */}
-      {phase === 2 && <MagicalUnicornRainbow />}
+      {/* Magical Starry Sky & Rainbow Canopy in background */}
+      {phase >= 2 && <MagicalUnicornRainbow />}
 
       {/* Continuous Fireworks in background */}
       <FireworksCanvas />
@@ -80,9 +86,9 @@ export default function WinnerVictoryScreen({ studentName, gradeGroupSlug }: Pro
         >
           <div
             style={{
-              fontSize: "clamp(4rem, 10vw, 7rem)",
+              fontSize: "clamp(4.5rem, 12vw, 8rem)",
               marginBottom: "0.5rem",
-              filter: "drop-shadow(0 0 35px #ffd600)",
+              filter: "drop-shadow(0 0 45px #ffd600)",
             }}
           >
             🏆
@@ -110,7 +116,7 @@ export default function WinnerVictoryScreen({ studentName, gradeGroupSlug }: Pro
         </div>
       )}
 
-      {/* STAGE 2: Student Name + "Great Job!" */}
+      {/* STAGE 2: Student Name + "GREAT JOB!" */}
       {phase === 2 && (
         <div
           key="phase2"
@@ -130,39 +136,86 @@ export default function WinnerVictoryScreen({ studentName, gradeGroupSlug }: Pro
               fontSize: "clamp(2.8rem, 8vw, 6.5rem)",
               fontWeight: 900,
               color: "#ffffff",
-              margin: "0 0 1rem 0",
+              margin: "0 0 0.8rem 0",
               letterSpacing: "3px",
               textShadow: `
                 0 0 20px #ffffff,
-                0 0 40px #42a5f5,
-                0 0 80px #1565c0,
-                0 0 120px rgba(66, 165, 245, 0.8)
+                0 0 40px #f472b6,
+                0 0 80px #38bdf8,
+                0 0 120px rgba(244, 114, 182, 0.8)
               `,
               animation: "victoryNamePop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards",
               lineHeight: 1.1,
             }}
           >
-            {studentName}
+            👤 {studentName}
           </h1>
 
-          {/* "Great Job!" */}
+          {/* "GREAT JOB!" */}
           <h2
             style={{
-              fontSize: "clamp(2rem, 5vw, 4rem)",
-              fontWeight: 800,
+              fontSize: "clamp(2.2rem, 6vw, 4.5rem)",
+              fontWeight: 900,
               color: "#ffd600",
               margin: 0,
               letterSpacing: "4px",
               textShadow: `
-                0 0 15px #ffd600,
-                0 0 35px #ff8f00,
-                0 0 60px rgba(255, 214, 0, 0.7)
+                0 0 20px #ffd600,
+                0 0 40px #ff8f00,
+                0 0 65px rgba(255, 214, 0, 0.8)
               `,
-              animation: "victorySubText 0.8s ease-out 0.4s both",
+              animation: "victorySubText 0.8s ease-out 0.3s both",
             }}
           >
-            Great Job!
+            ⭐ GREAT JOB! ⭐
           </h2>
+        </div>
+      )}
+
+      {/* STAGE 3: Final Victory Card */}
+      {phase === 3 && (
+        <div
+          key="phase3"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 100000,
+            textAlign: "center",
+            padding: "2rem 1.75rem",
+            maxWidth: 520,
+            width: "90%",
+            background: "rgba(10, 20, 30, 0.85)",
+            backdropFilter: "blur(20px)",
+            border: "2px solid rgba(244, 114, 182, 0.5)",
+            borderRadius: "28px",
+            boxShadow: "0 0 50px rgba(244, 114, 182, 0.4), 0 0 100px rgba(56, 189, 248, 0.3)",
+            animation: "victoryNamePop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards",
+          }}
+        >
+          <div style={{ fontSize: "3.5rem", marginBottom: "0.5rem" }}>🏆 ⭐</div>
+          <h2 style={{ fontSize: "2rem", fontWeight: 900, color: "#ffffff", margin: "0 0 0.4rem 0" }}>
+            {studentName}
+          </h2>
+          <div
+            style={{
+              background: "linear-gradient(135deg, #f472b6, #38bdf8)",
+              color: "white",
+              padding: "0.45rem 1.4rem",
+              borderRadius: "100px",
+              fontSize: "0.9rem",
+              fontWeight: 800,
+              letterSpacing: "1px",
+              marginBottom: "1rem",
+              boxShadow: "0 0 20px rgba(244, 114, 182, 0.5)",
+            }}
+          >
+            GREAT JOB! — 100% PERFECT SCORE ⭐
+          </div>
+          <p style={{ color: "rgba(253, 242, 248, 0.85)", fontSize: "0.85rem", fontStyle: "italic", margin: 0 }}>
+            🕊️ Violence Is Never The Answer — English Festival 2026
+          </p>
         </div>
       )}
 

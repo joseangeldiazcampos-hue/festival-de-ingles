@@ -8,18 +8,29 @@
 import { useEffect, useState } from "react";
 
 export default function MagicalUnicornRainbow() {
-  const [sparkles, setSparkles] = useState<Array<{ id: number; top: number; left: number; size: number; delay: number }>>([]);
+  const [sparkles, setSparkles] = useState<Array<{ id: number; top: number; left: number; size: number; delay: number; duration: number }>>([]);
+  const [shootingStars, setShootingStars] = useState<Array<{ id: number; top: number; left: number; delay: number }>>([]);
 
   useEffect(() => {
-    // Generate 30 magical twinkling stars along the rainbow arc
-    const newSparkles = Array.from({ length: 30 }, (_, i) => ({
+    // Generate 60 magical twinkling star particles across the starry night sky
+    const newSparkles = Array.from({ length: 60 }, (_, i) => ({
       id: i,
-      top: 25 + Math.sin((i / 30) * Math.PI) * 40 + (Math.random() - 0.5) * 12,
-      left: (i / 30) * 88 + 6,
-      size: 14 + Math.random() * 22,
-      delay: Math.random() * 2,
+      top: Math.random() * 90,
+      left: Math.random() * 95,
+      size: 10 + Math.random() * 26,
+      delay: Math.random() * 3,
+      duration: 1.2 + Math.random() * 2,
     }));
     setSparkles(newSparkles);
+
+    // Generate 8 shooting stars
+    const newShootingStars = Array.from({ length: 8 }, (_, i) => ({
+      id: i,
+      top: Math.random() * 50,
+      left: Math.random() * 70,
+      delay: i * 1.5 + Math.random(),
+    }));
+    setShootingStars(newShootingStars);
   }, []);
 
   const rainbowBands = [
@@ -57,7 +68,7 @@ export default function MagicalUnicornRainbow() {
             left: "2%",
             width: "96%",
             height: "80%",
-            filter: "drop-shadow(0 0 25px rgba(255, 255, 255, 0.6))",
+            filter: "drop-shadow(0 0 30px rgba(255, 255, 255, 0.7))",
           }}
         >
           <defs>
@@ -83,7 +94,7 @@ export default function MagicalUnicornRainbow() {
               style={{
                 strokeDasharray: 1600,
                 strokeDashoffset: 1600,
-                animation: "drawRainbow 5.5s cubic-bezier(0.35, 0, 0.25, 1) forwards 0.2s",
+                animation: "drawRainbow 5.0s cubic-bezier(0.35, 0, 0.25, 1) forwards 0.2s",
               }}
             />
           ))}
@@ -98,10 +109,10 @@ export default function MagicalUnicornRainbow() {
               top: `${sp.top}%`,
               left: `${sp.left}%`,
               fontSize: `${sp.size}px`,
-              animation: `sparklePulse 1.6s ease-in-out infinite alternate`,
+              animation: `sparklePulse ${sp.duration}s ease-in-out infinite alternate`,
               animationDelay: `${sp.delay}s`,
               color: "#ffffff",
-              textShadow: "0 0 12px #38bdf8, 0 0 25px #4ade80, 0 0 35px #ffffff",
+              textShadow: "0 0 12px #f472b6, 0 0 25px #38bdf8, 0 0 35px #ffffff",
               pointerEvents: "none",
               zIndex: 3,
             }}
@@ -110,66 +121,33 @@ export default function MagicalUnicornRainbow() {
           </div>
         ))}
 
-        {/* Large, Vivid Centered AI Dancing Unicorn Artwork Card */}
-        <div
-          style={{
-            position: "absolute",
-            top: "45%",
-            left: "50%",
-            width: "280px",
-            height: "280px",
-            borderRadius: "32px",
-            overflow: "hidden",
-            border: "4px solid #f472b6",
-            boxShadow: `
-              0 0 50px rgba(244, 114, 182, 0.9),
-              0 0 100px rgba(56, 189, 248, 0.8),
-              0 0 150px rgba(74, 222, 128, 0.7)
-            `,
-            animation: "centerUnicornDance 6.0s cubic-bezier(0.35, 0, 0.25, 1) forwards",
-            background: "transparent",
-            zIndex: 4,
-          }}
-        >
-          {/* Inner Dancing Image Wrapper */}
-          <div style={{ width: "100%", height: "100%", animation: "danceMove 0.65s ease-in-out infinite" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/unicorn_dance.gif"
-              alt="Magical Dancing Unicorn GIF"
-              onError={(e) => {
-                const target = e.currentTarget as HTMLImageElement;
-                if (!target.src.includes("unicorn_dance.jpg")) {
-                  target.src = "/unicorn_dance.jpg";
-                } else if (!target.src.includes("magical_unicorn.jpg")) {
-                  target.src = "/magical_unicorn.jpg";
-                }
-              }}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                filter: "contrast(1.1) brightness(1.05)",
-                display: "block",
-              }}
-            />
-          </div>
+        {/* Shooting Stars */}
+        {shootingStars.map((st) => (
           <div
+            key={st.id}
             style={{
               position: "absolute",
-              inset: 0,
-              boxShadow: "inset 0 0 25px rgba(244, 114, 182, 0.5)",
+              top: `${st.top}%`,
+              left: `${st.left}%`,
+              width: "120px",
+              height: "2px",
+              background: "linear-gradient(90deg, #ffffff, rgba(244, 114, 182, 0.8), transparent)",
+              transform: "rotate(-35deg)",
+              animation: `shootingStar 3.5s linear infinite`,
+              animationDelay: `${st.delay}s`,
               pointerEvents: "none",
+              zIndex: 2,
+              opacity: 0,
             }}
           />
-        </div>
+        ))}
 
       </div>
 
       {/* Keyframe Animations */}
       <style>{`
         @keyframes unicornFadeIn {
-          0% { opacity: 0; transform: scale(0.9); }
+          0% { opacity: 0; transform: scale(0.95); }
           100% { opacity: 1; transform: scale(1); }
         }
 
@@ -178,41 +156,17 @@ export default function MagicalUnicornRainbow() {
           100% { strokeDashoffset: 0; }
         }
 
-        @keyframes centerUnicornDance {
-          0% {
-            transform: translate(-50%, -50%) scale(0.6);
-            opacity: 0;
-          }
-          15% {
-            transform: translate(-50%, -50%) scale(1);
-            opacity: 1;
-          }
-          50% {
-            transform: translate(-50%, -55%) scale(1.08);
-            opacity: 1;
-          }
-          85% {
-            transform: translate(-50%, -48%) scale(0.98);
-            opacity: 1;
-          }
-          100% {
-            transform: translate(-50%, -50%) scale(1);
-            opacity: 1;
-          }
-        }
-
-        @keyframes danceMove {
-          0% { transform: rotate(-10deg) translateY(0px) scale(1); }
-          25% { transform: rotate(10deg) translateY(-14px) scale(1.06); }
-          50% { transform: rotate(-10deg) translateY(0px) scale(1); }
-          75% { transform: rotate(10deg) translateY(-14px) scale(1.06); }
-          100% { transform: rotate(-10deg) translateY(0px) scale(1); }
+        @keyframes shootingStar {
+          0% { opacity: 0; transform: translate(0, 0) rotate(-35deg) scaleX(0.2); }
+          10% { opacity: 1; transform: translate(-30px, 30px) rotate(-35deg) scaleX(1); }
+          30% { opacity: 0; transform: translate(-150px, 150px) rotate(-35deg) scaleX(0.5); }
+          100% { opacity: 0; }
         }
 
         @keyframes sparklePulse {
-          0% { opacity: 0.2; transform: scale(0.7) rotate(0deg); }
+          0% { opacity: 0.15; transform: scale(0.6) rotate(0deg); }
           50% { opacity: 1; transform: scale(1.4) rotate(45deg); }
-          100% { opacity: 0.3; transform: scale(0.8) rotate(90deg); }
+          100% { opacity: 0.2; transform: scale(0.7) rotate(90deg); }
         }
       `}</style>
     </div>
