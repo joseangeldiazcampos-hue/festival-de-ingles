@@ -110,24 +110,24 @@ export default function MagicalUnicornRainbow() {
           </div>
         ))}
 
-        {/* Large, Vivid AI Dancing Unicorn Artwork Card */}
+        {/* Large, Vivid Centered AI Dancing Unicorn Artwork Card */}
         <div
           style={{
             position: "absolute",
-            top: "18%",
-            left: "0%",
-            width: "240px",
-            height: "240px",
+            top: "45%",
+            left: "50%",
+            width: "280px",
+            height: "280px",
             borderRadius: "32px",
             overflow: "hidden",
             border: "4px solid #f472b6",
             boxShadow: `
-              0 0 45px rgba(244, 114, 182, 0.9),
-              0 0 90px rgba(56, 189, 248, 0.8),
-              0 0 130px rgba(74, 222, 128, 0.7)
+              0 0 50px rgba(244, 114, 182, 0.9),
+              0 0 100px rgba(56, 189, 248, 0.8),
+              0 0 150px rgba(74, 222, 128, 0.7)
             `,
-            animation: "glideUnicorn 6.0s cubic-bezier(0.35, 0, 0.25, 1) forwards 0.2s",
-            background: "#000000",
+            animation: "centerUnicornDance 6.0s cubic-bezier(0.35, 0, 0.25, 1) forwards",
+            background: "transparent",
             zIndex: 4,
           }}
         >
@@ -138,13 +138,19 @@ export default function MagicalUnicornRainbow() {
               src="/unicorn_dance.gif"
               alt="Magical Dancing Unicorn GIF"
               onError={(e) => {
-                (e.currentTarget as HTMLImageElement).src = "/unicorn_dance.jpg";
+                const target = e.currentTarget as HTMLImageElement;
+                if (!target.src.includes("unicorn_dance.jpg")) {
+                  target.src = "/unicorn_dance.jpg";
+                } else if (!target.src.includes("magical_unicorn.jpg")) {
+                  target.src = "/magical_unicorn.jpg";
+                }
               }}
               style={{
                 width: "100%",
                 height: "100%",
                 objectFit: "cover",
-                filter: "contrast(1.15) brightness(1.1)",
+                filter: "contrast(1.1) brightness(1.05)",
+                display: "block",
               }}
             />
           </div>
@@ -152,7 +158,7 @@ export default function MagicalUnicornRainbow() {
             style={{
               position: "absolute",
               inset: 0,
-              boxShadow: "inset 0 0 30px rgba(244, 114, 182, 0.6)",
+              boxShadow: "inset 0 0 25px rgba(244, 114, 182, 0.5)",
               pointerEvents: "none",
             }}
           />
@@ -172,25 +178,25 @@ export default function MagicalUnicornRainbow() {
           100% { strokeDashoffset: 0; }
         }
 
-        @keyframes glideUnicorn {
+        @keyframes centerUnicornDance {
           0% {
-            transform: translate(10px, 240px) scale(0.7);
+            transform: translate(-50%, -50%) scale(0.6);
             opacity: 0;
           }
-          10% {
+          15% {
+            transform: translate(-50%, -50%) scale(1);
             opacity: 1;
           }
-          30% {
-            transform: translate(250px, 90px) scale(0.95);
-          }
           50% {
-            transform: translate(500px, 20px) scale(1.1);
+            transform: translate(-50%, -55%) scale(1.08);
+            opacity: 1;
           }
-          75% {
-            transform: translate(750px, 90px) scale(0.95);
+          85% {
+            transform: translate(-50%, -48%) scale(0.98);
+            opacity: 1;
           }
           100% {
-            transform: translate(920px, 240px) scale(0.85);
+            transform: translate(-50%, -50%) scale(1);
             opacity: 1;
           }
         }
