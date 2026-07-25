@@ -148,33 +148,28 @@ export default function QuizLanding({ name, slug, grades, levels, emoji, descrip
 
       {/* Volume Modal */}
       {showVolumeModal && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(16px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem" }}>
-          <div style={{ maxWidth: 440, width: "100%", background: "white", border: `2px solid ${theme.border}`, borderRadius: "28px", padding: "2.4rem 2rem", textAlign: "center", boxShadow: `0 24px 60px ${theme.shadow}, 0 8px 24px rgba(0,0,0,0.12)` }}>
-            <div style={{ fontSize: "4rem", marginBottom: "0.5rem" }}>🔊 🎧</div>
-            <h2 style={{ color: theme.textDark, fontSize: "1.6rem", fontWeight: 900, margin: "0 0 0.75rem 0", letterSpacing: "-0.3px" }}>
-              ¡Sube el Volumen al 100%!
+        <div style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(0,0,0,0.65)", backdropFilter: "blur(16px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem" }}>
+          <div style={{ maxWidth: 400, width: "100%", background: "white", border: `2px solid ${theme.border}`, borderRadius: "28px", padding: "2rem 1.75rem", textAlign: "center", boxShadow: `0 24px 60px ${theme.shadow}, 0 8px 24px rgba(0,0,0,0.12)` }}>
+            <div style={{ fontSize: "4.5rem", marginBottom: "0.5rem" }}>🔊 🎧</div>
+            <h2 style={{ color: theme.textDark, fontSize: "1.75rem", fontWeight: 900, margin: "0 0 0.5rem 0", letterSpacing: "-0.5px" }}>
+              ¡Sube el volumen al 100%!
             </h2>
-            <p style={{ color: theme.textMid, fontSize: "0.82rem", fontWeight: 700, margin: "0 0 0.5rem 0", letterSpacing: "1px", textTransform: "uppercase" }}>
-              📢 Instrucción Importante
-            </p>
-            <p style={{ color: "#64748B", fontSize: "0.95rem", lineHeight: 1.65, margin: "0 0 1.75rem 0" }}>
-              Este examen contiene componentes de escucha y audio. <strong style={{ color: theme.textDark }}>Asegúrate de subir el volumen de tu celular o dispositivo al 100%</strong> para escuchar correctamente las preguntas.
+            <p style={{ color: theme.textMid, fontSize: "1.05rem", fontWeight: 700, margin: "0 0 1.5rem 0" }}>
+              🎧 Para escuchar el audio del quiz.
             </p>
             <button
               onClick={confirmStart}
               style={{
                 width: "100%",
-                padding: "1.15rem",
+                padding: "1.1rem",
                 background: theme.gradientBtn,
                 border: "none",
                 borderRadius: "100px",
                 color: "white",
-                fontSize: "1.05rem",
+                fontSize: "1.1rem",
                 fontWeight: 900,
                 cursor: "pointer",
                 boxShadow: `0 8px 28px ${theme.shadow}`,
-                letterSpacing: "0.3px",
-                transition: "transform 0.2s ease",
               }}
             >
               🔊 ¡Listo! Continuar →

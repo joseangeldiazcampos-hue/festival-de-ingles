@@ -320,25 +320,12 @@ export default function QuizInterface({ gradeGroupSlug }: { gradeGroupSlug: stri
           }}
         >
           <div style={{ fontSize: "4.5rem", marginBottom: "0.5rem" }}>🛑</div>
-          <h2 style={{ color: "#ef5350", fontSize: "1.8rem", fontWeight: 800, margin: "0 0 0.75rem 0" }}>
-            Intento Ya Completado / Quiz Submitted
+          <h2 style={{ color: "#ef5350", fontSize: "1.8rem", fontWeight: 900, margin: "0 0 0.5rem 0" }}>
+            Intento Ya Completado
           </h2>
-          <p style={{ color: "rgba(255,255,255,0.85)", fontSize: "0.95rem", lineHeight: 1.6, margin: "0 0 1.25rem 0" }}>
-            Ya has enviado tu respuesta para este examen. Por razones de seguridad e imparcialidad, recargar la página o volver atrás no permite repetir la prueba.
+          <p style={{ color: "rgba(255,255,255,0.95)", fontSize: "1.05rem", fontWeight: 700, margin: "0 0 1rem 0", lineHeight: 1.5 }}>
+            Ya respondiste este examen. Escanea el código QR de nuevo para volver a jugar.
           </p>
-          <div
-            style={{
-              background: "rgba(255, 214, 0, 0.15)",
-              border: "1px solid rgba(255, 214, 0, 0.4)",
-              borderRadius: "12px",
-              padding: "0.85rem 1rem",
-              color: "#ffd600",
-              fontSize: "0.9rem",
-              fontWeight: 700,
-            }}
-          >
-            📱 Para iniciar un nuevo intento, debes escanear el código QR nuevamente.
-          </div>
         </div>
       </div>
     );
