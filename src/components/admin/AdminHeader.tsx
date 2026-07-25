@@ -6,14 +6,14 @@
  * Fully responsive across 320px to 4K displays.
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signOut } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 
 const navItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: "📊" },
-  { href: "/admin/countries", label: "Countries & Quizzes", icon: "🌍" },
+  { href: "/admin/grade-groups", label: "Grade Groups", icon: "📚" },
   { href: "/admin/attempts", label: "Submissions", icon: "📋" },
   { href: "/admin/winners", label: "Winners ⭐", icon: "🏆" },
 ];
@@ -23,9 +23,27 @@ export default function AdminHeader() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Prevent back navigation on admin panel
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.history.pushState(null, "", window.location.href);
+    const handlePopState = () => {
+      window.history.pushState(null, "", window.location.href);
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [pathname]);
+
   const handleSignOut = async () => {
     await signOut({ redirect: false });
-    router.push("/admin/login");
+    if (typeof window !== "undefined") {
+      window.history.pushState(null, "", "/admin/login");
+      window.location.replace("/admin/login");
+    } else {
+      router.push("/admin/login");
+    }
   };
 
   return (
