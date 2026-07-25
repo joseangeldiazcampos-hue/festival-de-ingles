@@ -2,8 +2,8 @@
 
 /**
  * QuizLanding — The grade group welcome/landing screen
- * Requires student to enter their full name AND select their grade before starting.
- * Shows the quiz theme, CEFR levels, and a premium UI.
+ * Premium UI: pastel section palette per grade group, glassmorphism card,
+ * English culture icons, floating decorative shapes, volume modal.
  */
 
 import { useState } from "react";
@@ -30,17 +30,71 @@ const GRADE_LABELS: Record<string, string> = {
 
 const ALL_GRADES = ["7", "8", "9", "10", "11"];
 
-const LEVEL_COLORS: Record<string, string> = {
-  A1: "#4caf50",
-  A2: "#8bc34a",
-  B1: "#ff9800",
-  B2: "#f44336",
+// Slug-based theme palette — matches home page pastel sections
+const SLUG_THEMES: Record<string, {
+  bg: string;
+  bgCard: string;
+  accent: string;
+  accentLight: string;
+  textDark: string;
+  textMid: string;
+  border: string;
+  shadow: string;
+  gradientBtn: string;
+  levelGradient: string;
+  deco1: string;
+  deco2: string;
+}> = {
+  "7-8": {
+    bg: "linear-gradient(160deg, #FCE7F3 0%, #FDF2F8 55%, #FECDD3 100%)",
+    bgCard: "rgba(255, 255, 255, 0.80)",
+    accent: "#EC4899",
+    accentLight: "#F9A8D4",
+    textDark: "#831843",
+    textMid: "#BE185D",
+    border: "rgba(236,72,153,0.22)",
+    shadow: "rgba(236,72,153,0.15)",
+    gradientBtn: "linear-gradient(135deg, #EC4899, #F472B6)",
+    levelGradient: "linear-gradient(135deg, #EC4899, #F472B6)",
+    deco1: "rgba(244,114,182,0.14)",
+    deco2: "rgba(251,207,232,0.35)",
+  },
+  "9-10-11": {
+    bg: "linear-gradient(160deg, #E0F2FE 0%, #F0F9FF 55%, #DBEAFE 100%)",
+    bgCard: "rgba(255, 255, 255, 0.80)",
+    accent: "#0284C7",
+    accentLight: "#7DD3FC",
+    textDark: "#0C4A6E",
+    textMid: "#0369A1",
+    border: "rgba(2,132,199,0.22)",
+    shadow: "rgba(2,132,199,0.15)",
+    gradientBtn: "linear-gradient(135deg, #0284C7, #38BDF8)",
+    levelGradient: "linear-gradient(135deg, #0284C7, #38BDF8)",
+    deco1: "rgba(56,189,248,0.14)",
+    deco2: "rgba(186,230,253,0.35)",
+  },
+  "challenge": {
+    bg: "linear-gradient(160deg, #DCFCE7 0%, #F0FDF4 55%, #D1FAE5 100%)",
+    bgCard: "rgba(255, 255, 255, 0.80)",
+    accent: "#059669",
+    accentLight: "#6EE7B7",
+    textDark: "#064E3B",
+    textMid: "#047857",
+    border: "rgba(5,150,105,0.22)",
+    shadow: "rgba(5,150,105,0.15)",
+    gradientBtn: "linear-gradient(135deg, #059669, #34D399)",
+    levelGradient: "linear-gradient(135deg, #059669, #34D399)",
+    deco1: "rgba(52,211,153,0.14)",
+    deco2: "rgba(167,243,208,0.35)",
+  },
 };
+
+const DEFAULT_THEME = SLUG_THEMES["9-10-11"];
 
 const decorativeIcons = [
   { emoji: "🇬🇧", delay: "0s",   top: "8%",  left: "5%"  },
   { emoji: "🇺🇸", delay: "0.5s", top: "12%", right: "6%" },
-  { emoji: "☕", delay: "1s",   bottom: "22%", left: "4%"  },
+  { emoji: "☕",  delay: "1s",   bottom: "22%", left: "4%"  },
   { emoji: "🚌", delay: "1.5s", bottom: "15%", right: "6%" },
   { emoji: "👑", delay: "2s",   top: "40%",  left: "3%"  },
   { emoji: "📚", delay: "2.5s", top: "35%",  right: "4%" },
@@ -56,13 +110,12 @@ export default function QuizLanding({ name, slug, grades, levels, emoji, descrip
   const [gradeError, setGradeError] = useState("");
   const [showVolumeModal, setShowVolumeModal] = useState(false);
 
+  const theme = SLUG_THEMES[slug] ?? DEFAULT_THEME;
   const availableGrades = grades === "all" ? ALL_GRADES : grades.split(",");
   const levelList = levels.split(",");
 
   const handleStart = () => {
     let hasError = false;
-
-    // Validate name
     const validation = validateStudentName(studentName);
     if (!validation.isValid) {
       setNameError(validation.error || "Please enter your real full name.");
@@ -70,18 +123,13 @@ export default function QuizLanding({ name, slug, grades, levels, emoji, descrip
     } else {
       setNameError("");
     }
-
-    // Validate grade selection
     if (!selectedGrade) {
       setGradeError("⚠️ You must select your grade before starting the quiz.");
       hasError = true;
     } else {
       setGradeError("");
     }
-
     if (hasError) return;
-
-    // Show Volume Modal Prank/Notice
     setShowVolumeModal(true);
   };
 
@@ -96,63 +144,64 @@ export default function QuizLanding({ name, slug, grades, levels, emoji, descrip
   };
 
   return (
-    <div style={{ minHeight: "100vh", position: "relative", overflow: "hidden", background: "#0a0e1a" }}>
-      {/* Volume Modal Notice */}
+    <div style={{ minHeight: "100vh", position: "relative", overflow: "hidden", background: "#F8FAFF", fontFamily: "'Inter', system-ui, sans-serif" }}>
+
+      {/* Volume Modal */}
       {showVolumeModal && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(0,0,0,0.85)", backdropFilter: "blur(20px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem" }}>
-          <div style={{ maxWidth: 450, width: "100%", background: "linear-gradient(135deg, #0d3f2f, #061f17)", border: "3px solid #f472b6", borderRadius: "28px", padding: "2.2rem", textAlign: "center", boxShadow: "0 0 50px rgba(244, 114, 182, 0.5)" }}>
-            <div style={{ fontSize: "4.5rem", marginBottom: "0.5rem" }}>🔊 🎧</div>
-            <h2 style={{ color: "#f472b6", fontSize: "1.7rem", fontWeight: 900, margin: "0 0 0.75rem 0" }}>
-              ¡Sube el Volumen de tu Dispositivo!
+        <div style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(0,0,0,0.55)", backdropFilter: "blur(16px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "1.5rem" }}>
+          <div style={{ maxWidth: 440, width: "100%", background: "white", border: `2px solid ${theme.border}`, borderRadius: "28px", padding: "2.4rem 2rem", textAlign: "center", boxShadow: `0 24px 60px ${theme.shadow}, 0 8px 24px rgba(0,0,0,0.12)` }}>
+            <div style={{ fontSize: "4rem", marginBottom: "0.5rem" }}>🔊 🎧</div>
+            <h2 style={{ color: theme.textDark, fontSize: "1.6rem", fontWeight: 900, margin: "0 0 0.75rem 0", letterSpacing: "-0.3px" }}>
+              ¡Sube el Volumen al 100%!
             </h2>
-            <p style={{ color: "#7dd3fc", fontSize: "0.95rem", fontWeight: 800, margin: "0 0 0.5rem 0", letterSpacing: "1px" }}>
-              📢 INSTRUCCIÓN IMPORTANTE:
+            <p style={{ color: theme.textMid, fontSize: "0.82rem", fontWeight: 700, margin: "0 0 0.5rem 0", letterSpacing: "1px", textTransform: "uppercase" }}>
+              📢 Instrucción Importante
             </p>
-            <p style={{ color: "rgba(253, 242, 248, 0.95)", fontSize: "0.95rem", lineHeight: 1.6, margin: "0 0 1.6rem 0" }}>
-              Este examen contiene componentes de escucha y audio. <strong>Asegúrate de subir el volumen de tu celular o dispositivo al 100%</strong> para escuchar correctamente las preguntas.
+            <p style={{ color: "#64748B", fontSize: "0.95rem", lineHeight: 1.65, margin: "0 0 1.75rem 0" }}>
+              Este examen contiene componentes de escucha y audio. <strong style={{ color: theme.textDark }}>Asegúrate de subir el volumen de tu celular o dispositivo al 100%</strong> para escuchar correctamente las preguntas.
             </p>
             <button
               onClick={confirmStart}
               style={{
                 width: "100%",
                 padding: "1.15rem",
-                background: "linear-gradient(135deg, #f472b6, #38bdf8)",
+                background: theme.gradientBtn,
                 border: "none",
                 borderRadius: "100px",
                 color: "white",
-                fontSize: "1.1rem",
+                fontSize: "1.05rem",
                 fontWeight: 900,
                 cursor: "pointer",
-                boxShadow: "0 0 30px rgba(244, 114, 182, 0.6)",
-                letterSpacing: "0.5px",
+                boxShadow: `0 8px 28px ${theme.shadow}`,
+                letterSpacing: "0.3px",
+                transition: "transform 0.2s ease",
               }}
             >
-              🔊 ¡Listo, volumen al 100%! Continuar →
+              🔊 ¡Listo! Continuar →
             </button>
           </div>
         </div>
       )}
 
-      {/* ── Animated gradient background ── */}
-      <div className="bg-animated" style={{ position: "fixed", inset: 0, zIndex: 0 }} />
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 1,
-          background: "radial-gradient(ellipse at 50% 100%, rgba(21, 101, 192, 0.4) 0%, transparent 70%)",
-        }}
-      />
+      {/* Full-page pastel gradient background for this grade group */}
+      <div style={{ position: "fixed", inset: 0, zIndex: 0, background: theme.bg }} />
 
-      {/* Floating decorative icons */}
+      {/* Blurred background blobs */}
+      <div style={{ position: "fixed", inset: 0, zIndex: 1, pointerEvents: "none" }}>
+        <div style={{ position: "absolute", top: "-15%", right: "-10%", width: "55vw", height: "55vw", borderRadius: "50%", background: theme.deco1, filter: "blur(70px)" }} />
+        <div style={{ position: "absolute", bottom: "-10%", left: "-10%", width: "45vw", height: "45vw", borderRadius: "50%", background: theme.deco2, filter: "blur(60px)" }} />
+      </div>
+
+      {/* Floating English Culture Icons */}
       {decorativeIcons.map((icon, i) => (
         <div
           key={i}
           style={{
             position: "fixed",
-            fontSize: "clamp(1.5rem, 3vw, 2.5rem)",
-            opacity: 0.20,
-            animation: `flag-float ${4 + i * 0.5}s ease-in-out infinite`,
+            fontSize: "clamp(1.4rem, 2.8vw, 2.2rem)",
+            opacity: 0.18,
+            animation: `icon-float-land ${4.5 + i * 0.6}s ease-in-out infinite`,
+            animationDirection: i % 2 === 0 ? "alternate" : "alternate-reverse",
             animationDelay: icon.delay,
             top: icon.top,
             left: (icon as { left?: string }).left,
@@ -161,51 +210,63 @@ export default function QuizLanding({ name, slug, grades, levels, emoji, descrip
             zIndex: 2,
             pointerEvents: "none",
             userSelect: "none",
-            filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.8))",
           }}
         >
           {icon.emoji}
         </div>
       ))}
 
-      {/* ── Main content ── */}
-      <div className="country-hero" style={{ position: "relative", zIndex: 3 }}>
+      {/* Main content */}
+      <div style={{ position: "relative", zIndex: 5, minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "clamp(1.5rem, 4vw, 2.5rem) 1.25rem", gap: "1.5rem", width: "100%" }}>
 
-        {/* Festival badge */}
+        {/* Festival Badge */}
         <div
           className="animate-fadeInUp delay-100"
           style={{
-            display: "flex",
+            display: "inline-flex",
             alignItems: "center",
             gap: "0.5rem",
-            background: "rgba(0,0,0,0.45)",
-            border: "1px solid rgba(255,255,255,0.18)",
+            background: "white",
+            border: `1px solid ${theme.border}`,
             borderRadius: "100px",
             padding: "0.4rem 1.2rem",
-            fontSize: "0.8rem",
-            color: "rgba(255,255,255,0.85)",
-            fontWeight: 600,
+            fontSize: "0.75rem",
+            color: theme.textMid,
+            fontWeight: 700,
             letterSpacing: "1.5px",
             textTransform: "uppercase",
-            backdropFilter: "blur(10px)",
+            boxShadow: `0 2px 12px ${theme.shadow}`,
           }}
         >
           <span>🎓</span>
           <span>English Festival Quiz</span>
         </div>
 
-        {/* Emoji icon */}
+        {/* Emoji */}
         <div
-          className="flag-display animate-fadeInUp delay-200"
-          style={{ filter: "drop-shadow(0 4px 24px rgba(0,0,0,0.7))" }}
+          className="animate-fadeInUp delay-200"
+          style={{
+            fontSize: "clamp(4rem, 14vw, 7rem)",
+            lineHeight: 1,
+            filter: `drop-shadow(0 8px 24px ${theme.shadow})`,
+            animation: "flag-float 4s ease-in-out infinite",
+          }}
         >
           {emoji}
         </div>
 
         {/* Grade group name */}
         <h1
-          className="country-name animate-fadeInUp delay-300"
-          style={{ textShadow: "0 4px 32px rgba(0,0,0,0.8)" }}
+          className="animate-fadeInUp delay-300"
+          style={{
+            fontSize: "clamp(2rem, 7vw, 3.5rem)",
+            fontWeight: 900,
+            color: theme.textDark,
+            textAlign: "center",
+            letterSpacing: "-0.5px",
+            lineHeight: 1.1,
+            margin: 0,
+          }}
         >
           {name}
         </h1>
@@ -219,14 +280,14 @@ export default function QuizLanding({ name, slug, grades, levels, emoji, descrip
             <span
               key={level}
               style={{
-                background: `${LEVEL_COLORS[level] || "#1565c0"}22`,
-                border: `1px solid ${LEVEL_COLORS[level] || "#1565c0"}88`,
-                color: LEVEL_COLORS[level] || "#1565c0",
-                padding: "0.3rem 1rem",
+                background: theme.levelGradient,
+                color: "white",
+                padding: "0.35rem 1.1rem",
                 borderRadius: "100px",
-                fontSize: "0.85rem",
-                fontWeight: 700,
+                fontSize: "0.82rem",
+                fontWeight: 800,
                 letterSpacing: "1px",
+                boxShadow: `0 4px 12px ${theme.shadow}`,
               }}
             >
               Level {level}
@@ -236,126 +297,103 @@ export default function QuizLanding({ name, slug, grades, levels, emoji, descrip
 
         {/* Theme badge */}
         <div
-          className="theme-badge animate-fadeInUp delay-400"
+          className="animate-fadeInUp delay-400"
           style={{
-            background: "rgba(0,0,0,0.5)",
-            backdropFilter: "blur(12px)",
-            boxShadow: "0 0 24px rgba(21, 101, 192, 0.4)",
+            background: "white",
+            border: `1px solid ${theme.border}`,
+            borderRadius: "100px",
+            padding: "0.5rem 1.35rem",
+            fontSize: "0.82rem",
+            fontWeight: 700,
+            letterSpacing: "1px",
+            textTransform: "uppercase",
+            color: theme.textMid,
+            boxShadow: `0 2px 12px ${theme.shadow}`,
           }}
         >
           🕊️ &nbsp;Violence Is Never The Answer
         </div>
 
-        {/* Info card with name input + grade selector */}
+        {/* Info card */}
         <div
           className="animate-fadeInUp delay-500"
           style={{
-            padding: "1.75rem 2.2rem",
+            padding: "1.75rem 2rem",
             textAlign: "center",
             maxWidth: 480,
             width: "100%",
-            background: "rgba(6, 31, 23, 0.75)",
-            backdropFilter: "blur(24px)",
-            border: "2px solid rgba(244, 114, 182, 0.45)",
+            background: "white",
+            border: `1.5px solid ${theme.border}`,
             borderRadius: "24px",
-            boxShadow: "0 10px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(244, 114, 182, 0.25)",
+            boxShadow: `0 8px 32px ${theme.shadow}, 0 2px 8px rgba(0,0,0,0.06)`,
           }}
         >
           {description && (
-            <p style={{ color: "#7dd3fc", fontSize: "0.9rem", marginBottom: "1.25rem", lineHeight: 1.6, fontWeight: 600 }}>
+            <p style={{ color: theme.textMid, fontSize: "0.88rem", marginBottom: "1rem", lineHeight: 1.6, fontWeight: 600 }}>
               {description}
             </p>
           )}
 
-          <p style={{ color: "rgba(253, 242, 248, 0.9)", fontSize: "0.95rem", lineHeight: 1.7, margin: "0 0 1.25rem 0" }}>
+          <p style={{ color: "#475569", fontSize: "0.92rem", lineHeight: 1.7, margin: "0 0 1.25rem 0" }}>
             Read the text carefully, then answer all{" "}
-            <strong style={{ color: "#f472b6" }}>{questionCount} questions</strong>.
+            <strong style={{ color: theme.textDark }}>{questionCount} questions</strong>.
           </p>
 
-          {/* Student Name Input */}
+          {/* Name input */}
           <div style={{ textAlign: "left", marginBottom: "1.25rem" }}>
-            <label
-              style={{
-                display: "block",
-                fontSize: "0.85rem",
-                fontWeight: 700,
-                color: "#f472b6",
-                marginBottom: "0.4rem",
-                letterSpacing: "0.5px",
-              }}
-            >
-              👤 Enter Your Full Name (First & Last Name) *
+            <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: theme.textMid, marginBottom: "0.4rem", letterSpacing: "0.3px" }}>
+              👤 Full Name (First & Last) *
             </label>
             <input
               type="text"
               className="admin-input"
               value={studentName}
-              onChange={(e) => {
-                setStudentName(e.target.value);
-                if (nameError) setNameError("");
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleStart();
-              }}
+              onChange={(e) => { setStudentName(e.target.value); if (nameError) setNameError(""); }}
+              onKeyDown={(e) => { if (e.key === "Enter") handleStart(); }}
               placeholder="e.g. Juan Pérez"
               style={{
-                fontSize: "1.05rem",
+                fontSize: "1rem",
                 padding: "0.85rem 1.1rem",
-                background: "rgba(255,255,255,0.08)",
-                border: nameError ? "1px solid #ef5350" : "1px solid rgba(56, 189, 248, 0.4)",
+                background: "rgba(248,250,252,1)",
+                border: nameError ? "1.5px solid #EF4444" : `1.5px solid ${theme.border}`,
                 borderRadius: "12px",
-                color: "white",
+                color: "#1E293B",
                 outline: "none",
+                width: "100%",
               }}
             />
             {nameError && (
-              <p style={{ color: "#ef5350", fontSize: "0.8rem", marginTop: "0.4rem", margin: "0.4rem 0 0 0" }}>
-                ⚠️ {nameError}
-              </p>
+              <p style={{ color: "#EF4444", fontSize: "0.78rem", marginTop: "0.4rem" }}>⚠️ {nameError}</p>
             )}
           </div>
 
-          {/* Grade Selector — REQUIRED */}
+          {/* Grade selector */}
           <div style={{ textAlign: "left" }}>
-            <label
-              style={{
-                display: "block",
-                fontSize: "0.85rem",
-                fontWeight: 700,
-                color: "#38bdf8",
-                marginBottom: "0.5rem",
-                letterSpacing: "0.5px",
-              }}
-            >
+            <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: theme.textMid, marginBottom: "0.5rem", letterSpacing: "0.3px" }}>
               🎓 Select Your Grade *
             </label>
             <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
               {availableGrades.map((grade) => (
                 <button
                   key={grade}
-                  onClick={() => {
-                    setSelectedGrade(grade);
-                    if (gradeError) setGradeError("");
-                  }}
+                  onClick={() => { setSelectedGrade(grade); if (gradeError) setGradeError(""); }}
                   style={{
                     flex: "1 1 auto",
                     minWidth: "80px",
-                    padding: "0.75rem 1rem",
+                    padding: "0.75rem 0.75rem",
                     borderRadius: "12px",
                     border: selectedGrade === grade
-                      ? "2px solid #f472b6"
+                      ? `2px solid ${theme.accent}`
                       : gradeError
-                      ? "2px solid #ef5350"
-                      : "1px solid rgba(56,189,248,0.3)",
-                    background: selectedGrade === grade
-                      ? "linear-gradient(135deg, rgba(244, 114, 182, 0.45), rgba(56, 189, 248, 0.45))"
-                      : "rgba(255,255,255,0.06)",
-                    color: selectedGrade === grade ? "#ffffff" : "rgba(253,242,248,0.85)",
+                      ? "1.5px solid #EF4444"
+                      : `1.5px solid ${theme.border}`,
+                    background: selectedGrade === grade ? theme.gradientBtn : "rgba(248,250,252,1)",
+                    color: selectedGrade === grade ? "white" : theme.textMid,
                     cursor: "pointer",
-                    fontSize: "0.9rem",
+                    fontSize: "0.88rem",
                     fontWeight: selectedGrade === grade ? 800 : 500,
-                    transition: "all 0.2s ease",
-                    boxShadow: selectedGrade === grade ? "0 0 20px rgba(244,114,182,0.5)" : "none",
+                    transition: "all 0.2s cubic-bezier(0.34,1.56,0.64,1)",
+                    boxShadow: selectedGrade === grade ? `0 4px 16px ${theme.shadow}` : "none",
                   }}
                 >
                   {GRADE_LABELS[grade] || `${grade}th Grade`}
@@ -363,9 +401,7 @@ export default function QuizLanding({ name, slug, grades, levels, emoji, descrip
               ))}
             </div>
             {gradeError && (
-              <p style={{ color: "#ef5350", fontSize: "0.8rem", margin: "0.5rem 0 0 0", fontWeight: 600 }}>
-                {gradeError}
-              </p>
+              <p style={{ color: "#EF4444", fontSize: "0.78rem", margin: "0.5rem 0 0 0", fontWeight: 600 }}>{gradeError}</p>
             )}
           </div>
         </div>
@@ -375,16 +411,23 @@ export default function QuizLanding({ name, slug, grades, levels, emoji, descrip
           className="btn-start animate-fadeInUp delay-500"
           onClick={handleStart}
           style={{
-            fontSize: "1.15rem",
+            fontSize: "1.1rem",
             padding: "1.1rem 3.5rem",
-            background: "linear-gradient(135deg, #f472b6, #38bdf8)",
+            background: theme.gradientBtn,
             border: "none",
             borderRadius: "100px",
             color: "white",
             fontWeight: 800,
             cursor: "pointer",
-            boxShadow: "0 0 30px rgba(244, 114, 182, 0.6)",
-            marginTop: "1.5rem",
+            boxShadow: `0 8px 28px ${theme.shadow}`,
+            letterSpacing: "0.3px",
+            transition: "transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLElement).style.transform = "translateY(-3px) scale(1.03)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLElement).style.transform = "translateY(0) scale(1)";
           }}
         >
           Start Quiz →
@@ -394,18 +437,30 @@ export default function QuizLanding({ name, slug, grades, levels, emoji, descrip
         <p
           className="animate-fadeInUp"
           style={{
-            color: "rgba(255,255,255,0.4)",
-            fontSize: "0.8rem",
+            color: theme.textMid,
+            opacity: 0.55,
+            fontSize: "0.78rem",
             fontStyle: "italic",
-            marginTop: "0.5rem",
             animationDelay: "0.7s",
-            opacity: 0,
-            textShadow: "0 1px 4px rgba(0,0,0,0.8)",
+            textAlign: "center",
+            maxWidth: 360,
           }}
         >
           &quot;An eye for an eye only ends up making the whole world blind.&quot; — Gandhi
         </p>
       </div>
+
+      {/* Animation keyframes */}
+      <style>{`
+        @keyframes icon-float-land {
+          0% { transform: translateY(0) rotate(-4deg); }
+          100% { transform: translateY(-14px) rotate(4deg); }
+        }
+        @keyframes flag-float {
+          0%, 100% { transform: translateY(0) rotate(-2deg); }
+          50% { transform: translateY(-12px) rotate(2deg); }
+        }
+      `}</style>
     </div>
   );
 }
