@@ -30,3 +30,7 @@ services:
         sync: false
       - key: NODE_ENV
         value: production
+      - key: NEXTAUTH_URL
+        value: "https://festival-de-ingles.onrender.com"
+      - key: NEXT_PUBLIC_URL
+        value: "https://festival-de-ingles.onrender.com"
