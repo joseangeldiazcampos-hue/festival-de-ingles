@@ -135,10 +135,10 @@ export default function MagicalUnicornRainbow() {
           <div style={{ width: "100%", height: "100%", animation: "danceMove 0.65s ease-in-out infinite" }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/unicorn_dance.jpg"
-              alt="Magical AI Dancing Unicorn"
+              src="/unicorn_dance.gif"
+              alt="Magical Dancing Unicorn GIF"
               onError={(e) => {
-                (e.currentTarget as HTMLImageElement).src = "/unicorn_dance.gif";
+                (e.currentTarget as HTMLImageElement).src = "/unicorn_dance.jpg";
               }}
               style={{
                 width: "100%",
