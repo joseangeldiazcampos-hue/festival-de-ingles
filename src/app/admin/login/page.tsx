@@ -35,18 +35,28 @@ export default function AdminLoginPage() {
     setError("");
     setLoading(true);
 
-    const result = await signIn("credentials", {
-      password,
-      redirect: false,
-    });
+    try {
+      const trimmedPassword = password.trim();
+      const result = await signIn("credentials", {
+        password: trimmedPassword,
+        redirect: false,
+      });
 
-    setLoading(false);
-
-    if (result?.ok) {
-      router.push("/admin/dashboard");
-      router.refresh();
-    } else {
-      setError("Incorrect password. Please try again.");
+      if (result?.ok && !result?.error) {
+        router.push("/admin/dashboard");
+        router.refresh();
+      } else {
+        setError("Contraseña incorrecta. Por favor verifique e intente de nuevo.");
+      }
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      if (errorMsg.includes("NEXT_REDIRECT")) {
+        router.push("/admin/dashboard");
+        return;
+      }
+      setError("Error al iniciar sesión. Intente nuevamente.");
+    } finally {
+      setLoading(false);
     }
   };
 
