@@ -8,10 +8,12 @@
 import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -73,15 +75,41 @@ export default function AdminLoginPage() {
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           <div style={{ textAlign: "left" }}>
             <label className="admin-label">Password</label>
-            <input
-              className="admin-input"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter admin password"
-              required
-              autoFocus
-            />
+            <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+              <input
+                className="admin-input"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter admin password"
+                required
+                autoFocus
+                style={{ paddingRight: "2.75rem", width: "100%" }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                style={{
+                  position: "absolute",
+                  right: "0.75rem",
+                  background: "transparent",
+                  border: "none",
+                  color: "rgba(255, 255, 255, 0.6)",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  padding: "0.25rem",
+                  borderRadius: "6px",
+                  transition: "color 0.2s ease, background-color 0.2s ease",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "white")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255, 255, 255, 0.6)")}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
 
           {error && (
